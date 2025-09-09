@@ -1,6 +1,11 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { framer } from "framer-plugin";
 import { withPermission } from "../utils/permission-utils";
+
+// Array of fun GIFs for the upload process
+const gifUrls = [
+  "https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExdTg5d2x2OGsyZTk2ZG1pM3NsaGlnbWpxZnk3d3AzcDJyOWtwbnppYiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/QBd2kLB5qDmysEXre9/giphy.gif",
+];
 
 export default function FolderUpload() {
   const [uploadState, setUploadState] = useState<
@@ -8,6 +13,13 @@ export default function FolderUpload() {
   >("idle");
   const [uploadedCount, setUploadedCount] = useState(0);
   const [totalFiles, setTotalFiles] = useState(0);
+  const [randomGif, setRandomGif] = useState<string>("");
+
+  // Set a random GIF on component mount
+  useEffect(() => {
+    const randomIndex = Math.floor(Math.random() * gifUrls.length);
+    setRandomGif(gifUrls[randomIndex]);
+  }, []);
   const handleFolderUpload = async (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
@@ -442,6 +454,27 @@ export default function FolderUpload() {
     }
   };
 
+  // Component to render the random GIF
+  const RandomGif = () => {
+    if (!randomGif) return null;
+
+    return (
+      <img
+        src={randomGif}
+        alt="Fun random GIF"
+        style={{
+          width: "100%",
+          borderRadius: "10px",
+          marginTop: "40px",
+        }}
+        onError={(e) => {
+          // Hide GIF if it fails to load
+          e.currentTarget.style.display = "none";
+        }}
+      />
+    );
+  };
+
   return (
     <div
       style={{
@@ -467,14 +500,7 @@ export default function FolderUpload() {
         }}
       />
       {renderUploadStatus()}
-
-      {/* Add CSS animation for the loading spinner */}
-      <style>{`
-        @keyframes spin {
-          0% { transform: rotate(0deg); }
-          100% { transform: rotate(360deg); }
-        }
-      `}</style>
+      <RandomGif />
     </div>
   );
 }
