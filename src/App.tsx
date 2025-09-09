@@ -33,10 +33,17 @@ export function App() {
 
     console.log(`Found ${tsxFiles.length} .tsx files to process`);
 
-    // Process all files in parallel for better performance
-    const filePromises = tsxFiles.map(async (file) => {
+    // PHASE 1: Create all files with dummy content
+    console.log("Phase 1: Creating files with dummy content...");
+    const fileProcessingData: Array<{
+      file: File;
+      framerPath: string;
+      existingFile?: any;
+      createdFile?: any;
+    }> = [];
+
+    for (const file of tsxFiles) {
       try {
-        const content = await readFileContent(file);
         const fullPath = file.webkitRelativePath || file.name;
 
         // Remove the first level folder (treat uploaded folder as root)
@@ -50,26 +57,59 @@ export function App() {
         const existingFile = existingFileMap.get(framerPath);
 
         if (existingFile) {
-          // Update existing file
-          console.log(`Updating existing file: ${framerPath}`);
-          await existingFile.setFileContent(content);
+          // File exists, will update later
+          console.log(`File exists, will update: ${framerPath}`);
+          fileProcessingData.push({ file, framerPath, existingFile });
         } else {
-          // Create new file
-          console.log(`Creating new file: ${framerPath}`);
-          await withPermission({
+          // Create new file with dummy content
+          console.log(`Creating new file with dummy content: ${framerPath}`);
+          const createdFile = await withPermission({
             permission: "createCodeFile",
             action: async () => {
-              await framer.createCodeFile(framerPath, content);
+              return await framer.createCodeFile(
+                framerPath,
+                "export default function Test() { return <div>Test</div> }"
+              );
             },
           });
+          fileProcessingData.push({ file, framerPath, createdFile });
         }
       } catch (error) {
-        console.error(`Error processing file ${file.name}:`, error);
+        console.error(`Error in Phase 1 for file ${file.name}:`, error);
+      }
+    }
+
+    console.log(
+      `Phase 1 completed: ${fileProcessingData.length} files processed`
+    );
+
+    // PHASE 2: Replace dummy content with actual content
+    console.log("Phase 2: Replacing dummy content with actual content...");
+    const updatePromises = fileProcessingData.map(async (data) => {
+      try {
+        const { file, framerPath, existingFile, createdFile } = data;
+
+        // Read the actual file content
+        const actualContent = await readFileContent(file);
+
+        if (existingFile) {
+          // Update existing file
+          console.log(
+            `Updating existing file with actual content: ${framerPath}`
+          );
+          await existingFile.setFileContent(actualContent);
+        } else if (createdFile) {
+          // Update newly created file
+          console.log(`Updating new file with actual content: ${framerPath}`);
+          await createdFile.setFileContent(actualContent);
+        }
+      } catch (error) {
+        console.error(`Error in Phase 2 for file ${data.file.name}:`, error);
       }
     });
 
-    // Wait for all files to be processed in parallel
-    await Promise.all(filePromises);
+    // Wait for all updates to complete
+    await Promise.all(updatePromises);
 
     console.log("Upload completed!");
   };
