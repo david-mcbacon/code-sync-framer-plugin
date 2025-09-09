@@ -314,8 +314,6 @@ export default function FolderUpload() {
             style={{
               marginTop: "10px",
               padding: "12px",
-              backgroundColor: "#e3f2fd",
-              border: "1px solid #2196f3",
               borderRadius: "4px",
               display: "flex",
               alignItems: "center",
@@ -326,13 +324,15 @@ export default function FolderUpload() {
               style={{
                 width: "16px",
                 height: "16px",
-                border: "2px solid #2196f3",
+                border: "2px solid var(--framer-color-tint)",
                 borderTop: "2px solid transparent",
                 borderRadius: "50%",
                 animation: "spin 1s linear infinite",
               }}
             ></div>
-            <span style={{ color: "#1976d2", fontWeight: "500" }}>
+            <span
+              style={{ color: "var(--framer-color-tint)", fontWeight: "500" }}
+            >
               Uploading files... {uploadedCount}/{totalFiles}
             </span>
             <div
@@ -347,7 +347,7 @@ export default function FolderUpload() {
               <div
                 style={{
                   height: "100%",
-                  backgroundColor: "#2196f3",
+                  backgroundColor: "var(--framer-color-tint)",
                   borderRadius: "2px",
                   width: `${
                     totalFiles > 0 ? (uploadedCount / totalFiles) * 100 : 0
@@ -364,7 +364,6 @@ export default function FolderUpload() {
             style={{
               marginTop: "10px",
               padding: "12px",
-              backgroundColor: "#e8f5e8",
               border: "1px solid #4caf50",
               borderRadius: "4px",
               display: "flex",
@@ -374,14 +373,14 @@ export default function FolderUpload() {
           >
             <span
               style={{
-                color: "#2e7d32",
+                color: "#4caf50",
                 fontSize: "18px",
                 fontWeight: "bold",
               }}
             >
               ✓
             </span>
-            <span style={{ color: "#2e7d32", fontWeight: "500" }}>
+            <span style={{ color: "#4caf50", fontWeight: "500" }}>
               Successfully uploaded {uploadedCount} files to Framer!
             </span>
           </div>
