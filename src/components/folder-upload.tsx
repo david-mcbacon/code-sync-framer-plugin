@@ -25,8 +25,14 @@ export default function FolderUpload() {
     }
 
     try {
-      // Load import replacement rules saved in project data
-      const rules = await loadImportReplacementRules();
+      // Load import replacement rules and ignored files saved in project data
+      const [rules, ignored] = await Promise.all([
+        loadImportReplacementRules(),
+        loadIgnoredFiles(),
+      ]);
+
+      console.log("rules", rules);
+      console.log("ignored", ignored);
 
       // Initialize upload state
       setUploadState("loading");
@@ -61,6 +67,11 @@ export default function FolderUpload() {
           const framerPath =
             pathParts.length > 1 ? pathParts.slice(1).join("/") : pathParts[0];
 
+          // Skip ignored files (match by filename or relative path)
+          if (isIgnored(framerPath, ignored)) {
+            continue;
+          }
+
           // Check if file already exists
           const existingFile = existingFileMap.get(framerPath);
 
@@ -87,6 +98,9 @@ export default function FolderUpload() {
         }
       }
 
+      // Update total files after filtering out ignored ones
+      setTotalFiles(fileProcessingData.length);
+
       // PHASE 2: Replace dummy content with actual content
       const updatePromises = fileProcessingData.map(async (data) => {
         try {
@@ -104,6 +118,7 @@ export default function FolderUpload() {
           if (existingFile) {
             // Update existing file
             // await existingFile.setFileContent(actualContent);
+            console.log("updating existing file", framerPath);
             await withPermission({
               permission: "CodeFile.setFileContent",
               action: async () => {
@@ -112,6 +127,7 @@ export default function FolderUpload() {
             });
           } else if (createdFile) {
             // Update newly created file
+            console.log("updating newly created file", framerPath);
             await withPermission({
               permission: "CodeFile.setFileContent",
               action: async () => {
@@ -176,6 +192,38 @@ export default function FolderUpload() {
     } catch {
       return [];
     }
+  };
+
+  const loadIgnoredFiles = async (): Promise<string[]> => {
+    try {
+      const raw = await framer.getPluginData("ignoredFiles");
+      if (!raw) return [];
+      const parsed: unknown = JSON.parse(raw);
+      if (!Array.isArray(parsed)) return [];
+      return parsed
+        .map((s) => (typeof s === "string" ? s.trim() : ""))
+        .map((s) => s.replace(/\\/g, "/"))
+        .map((s) => s.replace(/^\.?\//, ""))
+        .filter(Boolean);
+    } catch {
+      return [];
+    }
+  };
+
+  const isIgnored = (framerPath: string, ignored: string[]): boolean => {
+    if (!ignored.length) return false;
+    const normalizedPath = framerPath.replace(/\\/g, "/").replace(/^\.?\//, "");
+    const filename = normalizedPath.split("/").pop() || normalizedPath;
+    return ignored.some((entryRaw) => {
+      const entry = entryRaw.replace(/\\/g, "/").replace(/^\.?\//, "");
+      if (!entry) return false;
+      if (entry.includes("/")) {
+        // treat as relative path match from project root (after stripping upload top folder)
+        return normalizedPath === entry;
+      }
+      // treat as filename-only match
+      return filename === entry;
+    });
   };
 
   const applyImportReplacements = (

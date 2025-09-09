@@ -12,8 +12,8 @@ framer.showUI({
 export function App() {
   return (
     <main style={{ padding: "20px" }}>
-      <ImportReplacements />
       <FolderUpload />
+      <ImportReplacements />
     </main>
   );
 }

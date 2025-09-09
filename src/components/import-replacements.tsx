@@ -12,6 +12,7 @@ export default function ImportReplacements() {
   const [saveStatus, setSaveStatus] = useState<"idle" | "success" | "error">(
     "idle"
   );
+  const [ignoredFiles, setIgnoredFiles] = useState<string[]>([]);
 
   useEffect(() => {
     (async () => {
@@ -23,6 +24,15 @@ export default function ImportReplacements() {
         }
       } catch {
         // ignore parse errors and start with empty rules
+      }
+      try {
+        const ignoredRaw = await framer.getPluginData("ignoredFiles");
+        if (ignoredRaw) {
+          const parsedIgnored: string[] = JSON.parse(ignoredRaw);
+          if (Array.isArray(parsedIgnored)) setIgnoredFiles(parsedIgnored);
+        }
+      } catch {
+        // ignore parse errors and start with empty list
       }
     })();
   }, []);
@@ -64,6 +74,13 @@ export default function ImportReplacements() {
       setSaveStatus("idle");
       const serialized = JSON.stringify(rules);
       await framer.setPluginData("importReplacements", serialized);
+      const ignoredFiltered = ignoredFiles
+        .map((s) => (typeof s === "string" ? s.trim() : ""))
+        .filter(Boolean);
+      await framer.setPluginData(
+        "ignoredFiles",
+        JSON.stringify(ignoredFiltered)
+      );
       setSaveStatus("success");
       setTimeout(() => setSaveStatus("idle"), 2000);
     } catch {
@@ -165,6 +182,75 @@ export default function ImportReplacements() {
         >
           + Add Pair
         </button>
+      </div>
+
+      <div style={{ marginTop: 18 }}>
+        <h4>Ignored files</h4>
+        <p style={{ color: "#ababab", marginTop: "6px" }}>
+          Files listed here will be skipped during upload and import rewrites.
+        </p>
+        <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+          {ignoredFiles.map((name, idx) => (
+            <div
+              key={idx}
+              style={{
+                border: "1px solid #ddd",
+                borderRadius: 4,
+                padding: 10,
+                display: "flex",
+                flexDirection: "column",
+                gap: 8,
+                alignItems: "center",
+              }}
+            >
+              <input
+                type="text"
+                placeholder="e.g. Cart.tsx or hooks/Cart.tsx"
+                value={name}
+                onChange={(e) => {
+                  const v = e.target.value;
+                  setIgnoredFiles((prev) => {
+                    const next = [...prev];
+                    next[idx] = v;
+                    return next;
+                  });
+                }}
+                style={{
+                  padding: "6px 8px",
+                  border: "1px solid #ccc",
+                  borderRadius: 4,
+                  width: "100%",
+                }}
+              />
+              <button
+                onClick={() =>
+                  setIgnoredFiles((prev) => prev.filter((_, i) => i !== idx))
+                }
+                style={{
+                  padding: "6px 10px",
+                  border: "1px solid #ccc",
+                  borderRadius: 4,
+                  cursor: "pointer",
+                }}
+              >
+                Remove
+              </button>
+            </div>
+          ))}
+        </div>
+        <div style={{ display: "flex", marginTop: 10 }}>
+          <button
+            onClick={() => setIgnoredFiles((prev) => [...prev, ""])}
+            style={{
+              padding: "8px 12px",
+              borderRadius: 4,
+              cursor: "pointer",
+              fontWeight: 500,
+            }}
+          >
+            + Add Ignored File
+          </button>
+        </div>
         <button
           onClick={saveRules}
           disabled={!isValid || isSaving}
@@ -176,9 +262,10 @@ export default function ImportReplacements() {
             borderRadius: 4,
             cursor: isValid ? "pointer" : "not-allowed",
             fontWeight: 600,
+            marginTop: 10,
           }}
         >
-          {isSaving ? "Saving..." : "Save Pairs"}
+          {isSaving ? "Saving..." : "Save Settings"}
         </button>
       </div>
 
