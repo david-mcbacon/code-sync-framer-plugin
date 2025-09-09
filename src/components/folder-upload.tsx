@@ -444,7 +444,11 @@ export default function FolderUpload() {
   };
 
   return (
-    <div style={{ marginBottom: "20px", marginTop: "20px" }}>
+    <div
+      style={{
+        paddingTop: "15px",
+      }}
+    >
       <h4>Upload Folder</h4>
       <p>Upload a folder containing .tsx files to sync with Framer.</p>
       <input
@@ -460,6 +464,7 @@ export default function FolderUpload() {
           cursor: uploadState === "loading" ? "not-allowed" : "pointer",
           width: "100%",
           opacity: uploadState === "loading" ? 0.6 : 1,
+          padding: "0px",
         }}
       />
       {renderUploadStatus()}

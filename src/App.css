@@ -1,10 +1,48 @@
-/* Your Plugin CSS */
-
-main {
+.tab-left {
+    width: 100%;
+    padding: 5px 15px;
+    border-radius: 10px 0 0 10px;
+    border: none;
+    background-color: var(--framer-color-bg-secondary);
     display: flex;
-    flex-direction: column;
-    align-items: start;
-    padding: 0 15px 15px 15px;
-    height: 100%;
-    gap: 15px;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
 }
+
+.tab-right {
+    width: 100%;
+    padding: 5px 15px;
+    border-radius: 0 10px 10px 0;
+    border: none;
+    background-color: var(--framer-color-bg-secondary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+.tab-left:hover, .tab-right:hover {
+    background-color: var(--framer-color-bg-tertiary);
+}
+
+[data-framer-theme="dark"] .active {
+    background-color: #3e3e3e;
+}
+
+[data-framer-theme="dark"] .active:hover {
+    background-color: #3e3e3e;
+}
+
+[data-framer-theme="light"] .active {
+    background-color: #d3d3d3;
+}
+
+[data-framer-theme="light"] .active:hover {
+    background-color: #d3d3d3;
+}
+
+
+*::-webkit-scrollbar {
+    display: none;
+  }
