@@ -25,6 +25,9 @@ export default function FolderUpload() {
     }
 
     try {
+      // Load import replacement rules saved in project data
+      const rules = await loadImportReplacementRules();
+
       // Initialize upload state
       setUploadState("loading");
       setTotalFiles(tsxFiles.length);
@@ -37,11 +40,16 @@ export default function FolderUpload() {
       );
 
       // PHASE 1: Create all files with dummy content
+      type FramerCodeFile = {
+        path?: string;
+        name: string;
+        setFileContent: (code: string) => Promise<unknown>;
+      };
       const fileProcessingData: Array<{
         file: File;
         framerPath: string;
-        existingFile?: any;
-        createdFile?: any;
+        existingFile?: FramerCodeFile;
+        createdFile?: FramerCodeFile;
       }> = [];
 
       for (const file of tsxFiles) {
@@ -80,12 +88,18 @@ export default function FolderUpload() {
       }
 
       // PHASE 2: Replace dummy content with actual content
-      const updatePromises = fileProcessingData.map(async (data, index) => {
+      const updatePromises = fileProcessingData.map(async (data) => {
         try {
           const { file, existingFile, createdFile } = data;
 
           // Read the actual file content
           const actualContent = await readFileContent(file);
+          const framerPath = data.framerPath;
+          const transformedContent = applyImportReplacements(
+            actualContent,
+            rules,
+            framerPath
+          );
 
           if (existingFile) {
             // Update existing file
@@ -93,7 +107,7 @@ export default function FolderUpload() {
             await withPermission({
               permission: "CodeFile.setFileContent",
               action: async () => {
-                return await existingFile.setFileContent(actualContent);
+                return await existingFile.setFileContent(transformedContent);
               },
             });
           } else if (createdFile) {
@@ -101,7 +115,7 @@ export default function FolderUpload() {
             await withPermission({
               permission: "CodeFile.setFileContent",
               action: async () => {
-                return await createdFile.setFileContent(actualContent);
+                return await createdFile.setFileContent(transformedContent);
               },
             });
           }
@@ -140,6 +154,109 @@ export default function FolderUpload() {
       reader.onerror = (e) => reject(e);
       reader.readAsText(file);
     });
+  };
+
+  type ImportReplacementRule = { search: string; bundlePath: string };
+
+  const loadImportReplacementRules = async (): Promise<
+    ImportReplacementRule[]
+  > => {
+    try {
+      const raw = await framer.getPluginData("importReplacements");
+      if (!raw) return [];
+      const parsed: unknown = JSON.parse(raw);
+      if (!Array.isArray(parsed)) return [];
+      return parsed
+        .map((r) => ({
+          search: typeof r.search === "string" ? r.search.trim() : "",
+          bundlePath:
+            typeof r.bundlePath === "string" ? r.bundlePath.trim() : "",
+        }))
+        .filter((r) => r.search && r.bundlePath);
+    } catch {
+      return [];
+    }
+  };
+
+  const applyImportReplacements = (
+    content: string,
+    rules: ImportReplacementRule[],
+    framerPath: string
+  ): string => {
+    if (!rules.length) return content;
+    const fromDir = getDirname(normalizePath(framerPath));
+    let output = content;
+    for (const rule of rules) {
+      const targetRootPath = stripLeadingDotSlash(
+        normalizePath(rule.bundlePath)
+      );
+      const relative = getRelativePath(fromDir, targetRootPath);
+      output = replaceImportSpecifier(output, rule.search, relative);
+    }
+    return output;
+  };
+
+  const normalizePath = (p: string): string =>
+    p.replace(/\\/g, "/").replace(/\/+/, "/");
+
+  const stripLeadingDotSlash = (p: string): string =>
+    p.startsWith("./") ? p.slice(2) : p.startsWith(".\\") ? p.slice(2) : p;
+
+  const getDirname = (p: string): string => {
+    const idx = p.lastIndexOf("/");
+    return idx === -1 ? "" : p.slice(0, idx);
+  };
+
+  const getRelativePath = (fromDir: string, toPath: string): string => {
+    const fromParts = fromDir ? fromDir.split("/").filter(Boolean) : [];
+    const toParts = toPath.split("/").filter(Boolean);
+
+    let i = 0;
+    while (
+      i < fromParts.length &&
+      i < toParts.length &&
+      fromParts[i] === toParts[i]
+    ) {
+      i++;
+    }
+
+    const upSegments = fromParts.length - i;
+    const downParts = toParts.slice(i);
+
+    const up = upSegments > 0 ? Array(upSegments).fill("..").join("/") : "";
+    const down = downParts.join("/");
+
+    let rel = up && down ? `${up}/${down}` : up || down;
+    if (!rel.startsWith("../") && !rel.startsWith("./")) {
+      rel = `./${rel}`;
+    }
+    return rel || "./";
+  };
+
+  const escapeRegExp = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+  const replaceImportSpecifier = (
+    content: string,
+    searchSpecifier: string,
+    replacement: string
+  ): string => {
+    const esc = escapeRegExp(searchSpecifier);
+    // Pattern 1: import {...} from 'specifier'
+    const fromPattern = new RegExp(`from\\s+(["'])${esc}\\1`, "g");
+    content = content.replace(
+      fromPattern,
+      (_m, quote: string) => `from ${quote}${replacement}${quote}`
+    );
+
+    // Pattern 2: side-effect import: import 'specifier'
+    const sePattern = new RegExp(`(^|[^\\w])import\\s+(["'])${esc}\\2`, "g");
+    content = content.replace(
+      sePattern,
+      (_m, prefix: string, quote: string) =>
+        `${prefix}import ${quote}${replacement}${quote}`
+    );
+
+    return content;
   };
   const renderUploadStatus = () => {
     switch (uploadState) {
