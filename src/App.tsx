@@ -1,46 +1,120 @@
-import { framer, CanvasNode } from "framer-plugin"
-import { useState, useEffect } from "react"
-import "./App.css"
+import { framer } from "framer-plugin";
+import "./App.css";
+import { withPermission } from "./utils/permission-utils";
 
 framer.showUI({
-    position: "top right",
-    width: 240,
-    height: 95,
-})
-
-function useSelection() {
-    const [selection, setSelection] = useState<CanvasNode[]>([])
-
-    useEffect(() => {
-        return framer.subscribeToSelection(setSelection)
-    }, [])
-
-    return selection
-}
+  position: "top left",
+  width: 360,
+  height: 300,
+});
 
 export function App() {
-    const selection = useSelection()
-    const layer = selection.length === 1 ? "layer" : "layers"
+  const handleFolderUpload = async (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const files = event.target.files;
+    if (!files) return;
 
-    const handleAddSvg = async () => {
-        await framer.addSVG({
-            svg: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"><path fill="#999" d="M20 0v8h-8L4 0ZM4 8h8l8 8h-8v8l-8-8Z"/></svg>`,
-            name: "Logo.svg",
-        })
+    // Convert FileList to Array for easier processing
+    const tsxFiles = Array.from(files).filter((file) =>
+      file.name.endsWith(".tsx")
+    );
+
+    if (tsxFiles.length === 0) {
+      console.log("No .tsx files found in the selected folder.");
+      return;
     }
 
-    return (
-        <main>
-            <p>
-                Welcome! Check out the{" "}
-                <a href="https://framer.com/developers/plugins/introduction" target="_blank">
-                    Docs
-                </a>{" "}
-                to start. You have {selection.length} {layer} selected.
-            </p>
-            <button className="framer-button-primary" onClick={handleAddSvg}>
-                Insert Logo
-            </button>
-        </main>
-    )
+    // Get all existing code files in Framer
+    const existingFiles = await framer.getCodeFiles();
+    const existingFileMap = new Map(
+      existingFiles.map((file) => [file.path || file.name, file])
+    );
+
+    console.log(`Found ${tsxFiles.length} .tsx files to process`);
+
+    // Process all files in parallel for better performance
+    const filePromises = tsxFiles.map(async (file) => {
+      try {
+        const content = await readFileContent(file);
+        const fullPath = file.webkitRelativePath || file.name;
+
+        // Remove the first level folder (treat uploaded folder as root)
+        const pathParts = fullPath.split("/");
+        const framerPath =
+          pathParts.length > 1 ? pathParts.slice(1).join("/") : pathParts[0];
+
+        console.log(`Processing: ${fullPath} -> ${framerPath}`);
+
+        // Check if file already exists
+        const existingFile = existingFileMap.get(framerPath);
+
+        if (existingFile) {
+          // Update existing file
+          console.log(`Updating existing file: ${framerPath}`);
+          await existingFile.setFileContent(content);
+        } else {
+          // Create new file
+          console.log(`Creating new file: ${framerPath}`);
+          await withPermission({
+            permission: "createCodeFile",
+            action: async () => {
+              await framer.createCodeFile(framerPath, content);
+            },
+          });
+        }
+      } catch (error) {
+        console.error(`Error processing file ${file.name}:`, error);
+      }
+    });
+
+    // Wait for all files to be processed in parallel
+    await Promise.all(filePromises);
+
+    console.log("Upload completed!");
+  };
+
+  const readFileContent = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = (e) => resolve(e.target?.result as string);
+      reader.onerror = (e) => reject(e);
+      reader.readAsText(file);
+    });
+  };
+
+  const handleAddOneFile = async () => {
+    await withPermission({
+      permission: "createCodeFile",
+      action: async () => {
+        await framer.createCodeFile(
+          "hooks-shopify/lol/test.tsx",
+          "export default function Test() { return <div>Test</div> }"
+        );
+      },
+    });
+  };
+
+  return (
+    <main style={{ padding: "20px" }}>
+      <h3>Code Sync Plugin</h3>
+      <button onClick={handleAddOneFile}>Add One File</button>
+
+      <div style={{ marginBottom: "20px" }}>
+        <h4>Upload Folder</h4>
+        <p>Upload a folder containing .tsx files to sync with Framer.</p>
+        <input
+          type="file"
+          webkitdirectory=""
+          directory=""
+          multiple
+          onChange={handleFolderUpload}
+          style={{
+            marginTop: "10px",
+            cursor: "pointer",
+          }}
+        />
+      </div>
+    </main>
+  );
 }
