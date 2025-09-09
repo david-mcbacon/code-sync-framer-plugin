@@ -43,9 +43,6 @@ export default function FolderUpload() {
         loadIgnoredFiles(),
       ]);
 
-      console.log("rules", rules);
-      console.log("ignored", ignored);
-
       // Initialize upload state
       setUploadState("loading");
       setTotalFiles(tsxFiles.length);
@@ -129,8 +126,6 @@ export default function FolderUpload() {
 
           if (existingFile) {
             // Update existing file
-            // await existingFile.setFileContent(actualContent);
-            console.log("updating existing file", framerPath);
             await withPermission({
               permission: "CodeFile.setFileContent",
               action: async () => {
@@ -139,7 +134,6 @@ export default function FolderUpload() {
             });
           } else if (createdFile) {
             // Update newly created file
-            console.log("updating newly created file", framerPath);
             await withPermission({
               permission: "CodeFile.setFileContent",
               action: async () => {
