@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { framer } from "framer-plugin";
 import { withPermission } from "../utils/permission-utils";
 
@@ -14,6 +14,7 @@ export default function FolderUpload() {
   const [uploadedCount, setUploadedCount] = useState(0);
   const [totalFiles, setTotalFiles] = useState(0);
   const [randomGif, setRandomGif] = useState<string>("");
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Set a random GIF on component mount
   useEffect(() => {
@@ -33,6 +34,10 @@ export default function FolderUpload() {
 
     if (tsxFiles.length === 0) {
       console.log("No .tsx files found in the selected folder.");
+      // Clear the file input since no valid files were found
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
       return;
     }
 
@@ -103,6 +108,10 @@ export default function FolderUpload() {
         } catch (error) {
           console.error(`Error in Phase 1 for file ${file.name}:`, error);
           setUploadState("error");
+          // Clear the file input on error
+          if (fileInputRef.current) {
+            fileInputRef.current.value = "";
+          }
           return;
         }
       }
@@ -157,6 +166,11 @@ export default function FolderUpload() {
       // Set success state
       setUploadState("success");
 
+      // Clear the file input
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
+
       // Reset to idle after showing success for 3 seconds
       setTimeout(() => {
         setUploadState("idle");
@@ -166,6 +180,10 @@ export default function FolderUpload() {
     } catch (error) {
       console.error("Upload failed:", error);
       setUploadState("error");
+      // Clear the file input on error
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
     }
   };
 
@@ -478,6 +496,7 @@ export default function FolderUpload() {
       <h4>Upload Folder</h4>
       <p>Upload a folder containing .tsx files to sync with Framer.</p>
       <input
+        ref={fileInputRef}
         type="file"
         // @ts-expect-error - webkitdirectory is not a valid attribute
         webkitdirectory=""

@@ -6,8 +6,8 @@ import { useState } from "react";
 
 framer.showUI({
   position: "top left",
-  width: 360,
-  height: 520,
+  width: 300,
+  height: 420,
 });
 
 export function App() {
