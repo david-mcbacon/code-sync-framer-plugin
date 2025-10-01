@@ -42,10 +42,11 @@ export default function FolderUpload() {
     }
 
     try {
-      // Load import replacement rules and ignored files saved in project data
-      const [rules, ignored] = await Promise.all([
+      // Load import replacement rules, ignored files, and env replacement setting saved in project data
+      const [rules, ignored, envReplacementEnabled] = await Promise.all([
         loadImportReplacementRules(),
         loadIgnoredFiles(),
+        loadEnvReplacementSetting(),
       ]);
 
       // Initialize upload state
@@ -127,11 +128,16 @@ export default function FolderUpload() {
           // Read the actual file content
           const actualContent = await readFileContent(file);
           const framerPath = data.framerPath;
-          const transformedContent = applyImportReplacements(
+          let transformedContent = applyImportReplacements(
             actualContent,
             rules,
             framerPath
           );
+
+          // Apply ENV replacement if enabled
+          if (envReplacementEnabled) {
+            transformedContent = applyEnvReplacement(transformedContent);
+          }
 
           if (existingFile) {
             // Update existing file
@@ -234,6 +240,17 @@ export default function FolderUpload() {
     }
   };
 
+  const loadEnvReplacementSetting = async (): Promise<boolean> => {
+    try {
+      const raw = await framer.getPluginData("enableEnvReplacement");
+      if (!raw) return false;
+      const parsed: unknown = JSON.parse(raw);
+      return typeof parsed === "boolean" ? parsed : false;
+    } catch {
+      return false;
+    }
+  };
+
   const isIgnored = (framerPath: string, ignored: string[]): boolean => {
     if (!ignored.length) return false;
     const normalizedPath = framerPath.replace(/\\/g, "/").replace(/^\.?\//, "");
@@ -326,6 +343,23 @@ export default function FolderUpload() {
       sePattern,
       (_m, prefix: string, quote: string) =>
         `${prefix}import ${quote}${replacement}${quote}`
+    );
+
+    return content;
+  };
+
+  const applyEnvReplacement = (content: string): string => {
+    // Replace ENV.property.development with ENV.property.production
+    // Pattern 1: ENV.something.development
+    content = content.replace(
+      /\bENV\.([a-zA-Z_$][a-zA-Z0-9_$]*)\.development\b/g,
+      "ENV.$1.production"
+    );
+
+    // Pattern 2: ENV["something"]["development"] or ENV['something']['development']
+    content = content.replace(
+      /\bENV\[(['"])([a-zA-Z_$][a-zA-Z0-9_$]*)\1\]\[(['"])development\3\]/g,
+      "ENV[$1$2$1][$3production$3]"
     );
 
     return content;

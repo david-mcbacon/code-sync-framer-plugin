@@ -14,6 +14,7 @@ export default function ImportReplacements() {
     "idle"
   );
   const [ignoredFiles, setIgnoredFiles] = useState<string[]>([]);
+  const [enableEnvReplacement, setEnableEnvReplacement] = useState(false);
 
   useEffect(() => {
     (async () => {
@@ -34,6 +35,17 @@ export default function ImportReplacements() {
         }
       } catch {
         // ignore parse errors and start with empty list
+      }
+      try {
+        const envReplacementRaw = await framer.getPluginData(
+          "enableEnvReplacement"
+        );
+        if (envReplacementRaw) {
+          const parsed = JSON.parse(envReplacementRaw);
+          if (typeof parsed === "boolean") setEnableEnvReplacement(parsed);
+        }
+      } catch {
+        // ignore parse errors and default to false
       }
     })();
   }, []);
@@ -90,6 +102,16 @@ export default function ImportReplacements() {
           return await framer.setPluginData(
             "ignoredFiles",
             JSON.stringify(ignoredFiltered)
+          );
+        },
+      });
+
+      await withPermission({
+        permission: "setPluginData",
+        action: async () => {
+          return await framer.setPluginData(
+            "enableEnvReplacement",
+            JSON.stringify(enableEnvReplacement)
           );
         },
       });
@@ -268,6 +290,65 @@ export default function ImportReplacements() {
             >
               + Add Ignored File
             </button>
+          </div>
+        </div>
+
+        <div style={{ marginTop: 18 }}>
+          <h4>ENV Replacement</h4>
+          <p style={{ color: "#ababab", marginTop: "6px" }}>
+            Enable to automatically replace <code>.development</code> with{" "}
+            <code>.production</code> in ENV configurations during upload.
+          </p>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 10,
+              marginTop: 10,
+            }}
+          >
+            <label
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 8,
+                cursor: "pointer",
+              }}
+            >
+              <input
+                type="checkbox"
+                checked={enableEnvReplacement}
+                onChange={(e) => setEnableEnvReplacement(e.target.checked)}
+                style={{
+                  width: "18px",
+                  height: "18px",
+                  cursor: "pointer",
+                }}
+              />
+              <span style={{ fontWeight: 500 }}>
+                Replace development with production URLs
+              </span>
+            </label>
+          </div>
+          <div
+            style={{
+              marginTop: 10,
+              padding: 8,
+              backgroundColor: "rgba(255, 255, 255, 0.05)",
+              borderRadius: 4,
+              fontSize: "12px",
+              color: "#ababab",
+            }}
+          >
+            <div>Example transformation:</div>
+            <div style={{ marginTop: 4, fontFamily: "monospace" }}>
+              <div>
+                ENV.backendUrl
+                <span style={{ color: "#ff6b6b" }}>.development</span> →
+                ENV.backendUrl
+                <span style={{ color: "#51cf66" }}>.production</span>
+              </div>
+            </div>
           </div>
         </div>
       </div>
