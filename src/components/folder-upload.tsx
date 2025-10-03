@@ -139,6 +139,9 @@ export default function FolderUpload() {
             transformedContent = applyEnvReplacement(transformedContent);
           }
 
+          // Ensure all relative imports have .tsx extension
+          transformedContent = ensureTsxExtensions(transformedContent);
+
           if (existingFile) {
             // Update existing file
             await withPermission({
@@ -363,6 +366,22 @@ export default function FolderUpload() {
     );
 
     return content;
+  };
+
+  const ensureTsxExtensions = (content: string): string => {
+    // Match import statements with relative paths (starting with . or ..)
+    // Captures: from "path" or from 'path' or import "path" or import 'path'
+    const importPattern = /(from\s+|import\s+)(["'])(\.\.[^"']*|\.\/[^"']*)\2/g;
+
+    return content.replace(importPattern, (match, prefix, quote, path) => {
+      // Skip if already has .tsx, .ts, .jsx, .js, or .css extension
+      if (/\.(tsx|ts|jsx|js|css)$/.test(path)) {
+        return match;
+      }
+
+      // Add .tsx extension
+      return `${prefix}${quote}${path}.tsx${quote}`;
+    });
   };
   const renderUploadStatus = () => {
     switch (uploadState) {
