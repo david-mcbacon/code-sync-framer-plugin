@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState } from "react";
 import { handleFolderUpload } from "../lib/upload-logic";
 
 export default function FolderUpload() {
@@ -7,22 +7,15 @@ export default function FolderUpload() {
   >("idle");
   const [uploadedCount, setUploadedCount] = useState(0);
   const [totalFiles, setTotalFiles] = useState(0);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [isDragging, setIsDragging] = useState(false);
 
-  const onFolderUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const files = event.target.files;
-    if (!files) return;
-
-    // Check if no .tsx files were found (this is handled inside handleFolderUpload)
+  const processFiles = async (files: FileList) => {
+    // Check if no .tsx files were found
     const tsxFiles = Array.from(files).filter((file) =>
       file.name.endsWith(".tsx")
     );
     if (tsxFiles.length === 0) {
       console.log("No .tsx files found in the selected folder.");
-      // Clear the file input since no valid files were found
-      if (fileInputRef.current) {
-        fileInputRef.current.value = "";
-      }
       return;
     }
 
@@ -32,11 +25,88 @@ export default function FolderUpload() {
       setTotalFiles,
       setUploadedCount
     );
+  };
 
-    // Clear the file input after upload attempt
-    if (fileInputRef.current) {
-      fileInputRef.current.value = "";
+  const handleDragEnter = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+  };
+
+  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+  };
+
+  const handleDrop = async (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+
+    if (uploadState === "loading") return;
+
+    const items = e.dataTransfer.items;
+    if (!items) return;
+
+    const files: File[] = [];
+
+    // Collect all files from the dropped items
+    for (let i = 0; i < items.length; i++) {
+      const item = items[i];
+      if (item.kind === "file") {
+        const entry = item.webkitGetAsEntry();
+        if (entry) {
+          await collectFiles(entry, files);
+        }
+      }
     }
+
+    if (files.length > 0) {
+      // Convert array to FileList-like object
+      const fileList = createFileList(files);
+      await processFiles(fileList);
+    }
+  };
+
+  // Recursively collect files from directories
+  const collectFiles = async (
+    entry: FileSystemEntry,
+    files: File[]
+  ): Promise<void> => {
+    if (entry.isFile) {
+      const fileEntry = entry as FileSystemFileEntry;
+      return new Promise((resolve) => {
+        fileEntry.file((file) => {
+          files.push(file);
+          resolve();
+        });
+      });
+    } else if (entry.isDirectory) {
+      const dirEntry = entry as FileSystemDirectoryEntry;
+      const reader = dirEntry.createReader();
+
+      return new Promise((resolve) => {
+        reader.readEntries(async (entries) => {
+          for (const entry of entries) {
+            await collectFiles(entry, files);
+          }
+          resolve();
+        });
+      });
+    }
+  };
+
+  // Create a FileList-like object from an array of files
+  const createFileList = (files: File[]): FileList => {
+    const dataTransfer = new DataTransfer();
+    files.forEach((file) => dataTransfer.items.add(file));
+    return dataTransfer.files;
   };
   const renderUploadStatus = () => {
     switch (uploadState) {
@@ -181,24 +251,62 @@ export default function FolderUpload() {
       }}
     >
       <h4>Upload Folder</h4>
-      <p>Upload a folder containing .tsx files to sync with Framer.</p>
-      <input
-        ref={fileInputRef}
-        type="file"
-        // @ts-expect-error - webkitdirectory is not a valid attribute
-        webkitdirectory=""
-        directory=""
-        multiple
-        onChange={onFolderUpload}
-        disabled={uploadState === "loading"}
+      <p>Drag and drop a folder containing .tsx files to sync with Framer.</p>
+      <div
+        onDragEnter={handleDragEnter}
+        onDragOver={handleDragOver}
+        onDragLeave={handleDragLeave}
+        onDrop={handleDrop}
         style={{
           marginTop: "10px",
+          padding: "40px 20px",
+          border: isDragging
+            ? "2px dashed var(--framer-color-tint)"
+            : "2px dashed #ccc",
+          borderRadius: "8px",
+          backgroundColor: isDragging
+            ? "rgba(33, 150, 243, 0.05)"
+            : uploadState === "loading"
+            ? "transparent"
+            : "transparent",
           cursor: uploadState === "loading" ? "not-allowed" : "pointer",
-          width: "100%",
           opacity: uploadState === "loading" ? 0.6 : 1,
-          padding: "0px",
+          textAlign: "center",
+          transition: "all 0.2s ease",
         }}
-      />
+      >
+        <div
+          style={{
+            fontSize: "40px",
+            marginBottom: "10px",
+            opacity: 0.5,
+          }}
+        >
+          📁
+        </div>
+        <div
+          style={{
+            fontSize: "14px",
+            fontWeight: "500",
+            color: isDragging ? "var(--framer-color-tint)" : "#666",
+            marginBottom: "5px",
+          }}
+        >
+          {isDragging
+            ? "Drop folder here"
+            : uploadState === "loading"
+            ? "Uploading..."
+            : "Drop folder here"}
+        </div>
+        <div
+          style={{
+            fontSize: "12px",
+            color: "#999",
+          }}
+        >
+          Only .tsx files will be processed
+        </div>
+      </div>
       {renderUploadStatus()}
     </div>
   );
