@@ -1,4 +1,4 @@
-export type ImportReplacementRule = { search: string; bundlePath: string };
+export type ImportReplacementRule = { find: string; replace: string };
 
 export type CodeSyncConfig = {
   version?: number;

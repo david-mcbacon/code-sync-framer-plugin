@@ -109,16 +109,14 @@ const sanitizeConfig = (raw: unknown): CodeSyncConfig => {
     if (Array.isArray(obj.importReplacements)) {
       out.importReplacements = obj.importReplacements
         .map((r) => {
-          if (!r || typeof r !== "object")
-            return { search: "", bundlePath: "" };
+          if (!r || typeof r !== "object") return { find: "", replace: "" };
           const rec = r as Record<string, unknown>;
-          const search =
-            typeof rec.search === "string" ? rec.search.trim() : "";
-          const bundlePath =
-            typeof rec.bundlePath === "string" ? rec.bundlePath.trim() : "";
-          return { search, bundlePath };
+          const find = typeof rec.find === "string" ? rec.find.trim() : "";
+          const replace =
+            typeof rec.replace === "string" ? rec.replace.trim() : "";
+          return { find, replace };
         })
-        .filter((r) => r.search && r.bundlePath);
+        .filter((r) => r.find && r.replace);
     }
     if (Array.isArray(obj.ignoredFiles)) {
       out.ignoredFiles = obj.ignoredFiles
@@ -140,14 +138,14 @@ export const mergeImportReplacementRules = (
 ): ImportReplacementRule[] => {
   const map = new Map<string, string>();
   for (const r of baseRules) {
-    if (r.search && r.bundlePath) map.set(r.search, r.bundlePath);
+    if (r.find && r.replace) map.set(r.find, r.replace);
   }
   for (const r of overrideRules) {
-    if (r.search && r.bundlePath) map.set(r.search, r.bundlePath);
+    if (r.find && r.replace) map.set(r.find, r.replace);
   }
-  return Array.from(map.entries()).map(([search, bundlePath]) => ({
-    search,
-    bundlePath,
+  return Array.from(map.entries()).map(([find, replace]) => ({
+    find,
+    replace,
   }));
 };
 
@@ -171,10 +169,10 @@ export const loadImportReplacementRules = async (): Promise<
     if (!Array.isArray(parsed)) return [];
     return parsed
       .map((r) => ({
-        search: typeof r.search === "string" ? r.search.trim() : "",
-        bundlePath: typeof r.bundlePath === "string" ? r.bundlePath.trim() : "",
+        find: typeof r.find === "string" ? r.find.trim() : "",
+        replace: typeof r.replace === "string" ? r.replace.trim() : "",
       }))
-      .filter((r) => r.search && r.bundlePath);
+      .filter((r) => r.find && r.replace);
   } catch {
     return [];
   }

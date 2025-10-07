@@ -9,9 +9,22 @@ export const applyImportReplacements = (
   const fromDir = getDirname(normalizePath(framerPath));
   let output = content;
   for (const rule of rules) {
-    const targetRootPath = stripLeadingDotSlash(normalizePath(rule.bundlePath));
-    const relative = getRelativePath(fromDir, targetRootPath);
-    output = replaceImportSpecifier(output, rule.search, relative);
+    const replaceValue = rule.replace;
+    let finalReplace: string;
+
+    // If replace value is a URL (starts with http:// or https://), use it as-is
+    if (
+      replaceValue.startsWith("http://") ||
+      replaceValue.startsWith("https://")
+    ) {
+      finalReplace = replaceValue;
+    } else {
+      // For local paths, calculate relative path
+      const targetRootPath = stripLeadingDotSlash(normalizePath(replaceValue));
+      finalReplace = getRelativePath(fromDir, targetRootPath);
+    }
+
+    output = replaceImportSpecifier(output, rule.find, finalReplace);
   }
   return output;
 };

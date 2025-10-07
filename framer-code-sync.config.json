@@ -2,16 +2,16 @@
   "version": 1,
   "importReplacements": [
     {
-      "search": "@stripe/stripe-js",
-      "bundlePath": "./Lib/Stripe_bundle.tsx"
+      "find": "@stripe/stripe-js",
+      "replace": "./Lib/Stripe_bundle.tsx"
     },
     {
-      "search": "@stripe/react-stripe-js",
-      "bundlePath": "./Lib/Stripe_bundle.tsx"
+      "find": "@stripe/react-stripe-js",
+      "replace": "./Lib/Stripe_bundle.tsx"
     },
     {
-      "search": "./Mock/Use_current_location.tsx",
-      "bundlePath": "https://framer.com/m/UseCurrentLocation-oZyA.js@1l8XdClJld0xwptzsD73"
+      "find": "./Mock/Use_current_location.tsx",
+      "replace": "https://framer.com/m/UseCurrentLocation-oZyA.js@1l8XdClJld0xwptzsD73"
     }
   ],
   "ignoredFiles": [],

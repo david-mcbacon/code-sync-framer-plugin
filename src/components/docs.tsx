@@ -44,7 +44,7 @@ export default function Docs() {
           <code>{`{
   "version": 1,
   "importReplacements": [
-    { "search": "@tanstack/react-query", "bundlePath": "./bundles/Tanstack_query.tsx" }
+    { "find": "@tanstack/react-query", "replace": "./bundles/Tanstack_query.tsx" }
   ],
   "ignoredFiles": [
     "Cart.tsx",
