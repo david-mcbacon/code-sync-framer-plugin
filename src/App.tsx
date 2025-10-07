@@ -1,8 +1,8 @@
 import { framer } from "framer-plugin";
 import "./App.css";
 import FolderUpload from "./components/folder-upload";
-import ImportReplacements from "./components/import-replacements";
 import { useState } from "react";
+import Docs from "./components/docs";
 
 framer.showUI({
   position: "top left",
@@ -38,15 +38,15 @@ export function App() {
           Upload
         </div>
         <div
-          className={`tab-right ${activeTab === "settings" ? "active" : ""}`}
-          onClick={() => setActiveTab("settings")}
+          className={`tab-right ${activeTab === "docs" ? "active" : ""}`}
+          onClick={() => setActiveTab("docs")}
         >
-          Settings
+          Docs
         </div>
       </div>
 
       {activeTab === "upload" && <FolderUpload />}
-      {activeTab === "settings" && <ImportReplacements />}
+      {activeTab === "docs" && <Docs />}
     </main>
   );
 }
