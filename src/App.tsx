@@ -29,6 +29,7 @@ export function App() {
           flexDirection: "row",
           gap: 0,
           width: "100%",
+          height: "fit-content",
         }}
       >
         <div
@@ -44,9 +45,10 @@ export function App() {
           Docs
         </div>
       </div>
-
-      {activeTab === "upload" && <FolderUpload />}
-      {activeTab === "docs" && <Docs />}
+      <div style={{ height: "100%", width: "100%" }}>
+        {activeTab === "upload" && <FolderUpload />}
+        {activeTab === "docs" && <Docs />}
+      </div>
     </main>
   );
 }

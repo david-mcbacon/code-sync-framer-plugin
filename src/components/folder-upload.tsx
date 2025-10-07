@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { handleFolderUpload } from "../lib/upload-logic";
 
 export default function FolderUpload() {
@@ -8,6 +8,7 @@ export default function FolderUpload() {
   const [uploadedCount, setUploadedCount] = useState(0);
   const [totalFiles, setTotalFiles] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const processFiles = async (files: FileList | null) => {
     if (!files) return;
@@ -64,6 +65,23 @@ export default function FolderUpload() {
     // Convert array to FileList-like object
     const fileList = createFileList(files);
     await processFiles(fileList);
+  };
+
+  const handleClick = () => {
+    if (uploadState === "loading") return;
+    fileInputRef.current?.click();
+  };
+
+  const handleFileInputChange = async (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const files = event.target.files;
+    await processFiles(files);
+
+    // Clear the file input after upload attempt
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
   };
 
   // Helper function to traverse the directory tree
@@ -159,7 +177,6 @@ export default function FolderUpload() {
             style={{
               marginTop: "10px",
               padding: "12px",
-              border: "1px solid #4caf50",
               borderRadius: "4px",
               display: "flex",
               alignItems: "center",
@@ -240,31 +257,47 @@ export default function FolderUpload() {
   return (
     <div
       style={{
-        paddingTop: "15px",
+        height: "100%",
+        width: "100%",
+        paddingTop: "10px",
+        position: "relative",
       }}
     >
-      <h4>Upload Folder</h4>
-      <p>Drag and drop a folder containing .tsx files to sync with Framer.</p>
+      <input
+        ref={fileInputRef}
+        type="file"
+        // @ts-expect-error - webkitdirectory is not a valid attribute
+        webkitdirectory=""
+        directory=""
+        multiple
+        onChange={handleFileInputChange}
+        style={{ display: "none", height: "100%" }}
+      />
+
       <div
+        onClick={handleClick}
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
         style={{
-          marginTop: "10px",
           padding: "40px 20px",
+          height: "100%",
           border: isDragging
             ? "2px dashed var(--framer-color-tint)"
-            : "2px dashed #ccc",
+            : "2px dashed var(--framer-color-bg-tertiary)",
           borderRadius: "8px",
           backgroundColor: isDragging
             ? "rgba(0, 123, 255, 0.05)"
             : uploadState === "loading"
-            ? "#f5f5f5"
-            : "#fafafa",
+            ? "transparent"
+            : "transparent",
           textAlign: "center",
           cursor: uploadState === "loading" ? "not-allowed" : "pointer",
           transition: "all 0.2s ease",
-          opacity: uploadState === "loading" ? 0.6 : 1,
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "center",
+          alignItems: "center",
         }}
       >
         <div
@@ -276,31 +309,36 @@ export default function FolderUpload() {
         >
           📁
         </div>
-        <p
-          style={{
-            margin: "0",
-            color: isDragging ? "var(--framer-color-tint)" : "#666",
-            fontWeight: isDragging ? "600" : "400",
-            fontSize: "14px",
-          }}
-        >
-          {uploadState === "loading"
-            ? "Uploading files..."
-            : isDragging
-            ? "Drop folder here"
-            : "Drag and drop a folder here"}
-        </p>
-        <p
-          style={{
-            margin: "5px 0 0 0",
-            color: "#999",
-            fontSize: "12px",
-          }}
-        >
-          Only .tsx files will be uploaded
-        </p>
+        {uploadState === "idle" && (
+          <>
+            <p
+              style={{
+                margin: "0",
+                color: isDragging ? "var(--framer-color-tint)" : "#666",
+                fontWeight: isDragging ? "600" : "400",
+                fontSize: "14px",
+              }}
+            >
+              {uploadState === "loading"
+                ? "Uploading files..."
+                : isDragging
+                ? "Drop folder here"
+                : "Drag folder or click to browse"}
+            </p>
+            <p
+              style={{
+                margin: "5px 0 0 0",
+                color: "#999",
+                fontSize: "12px",
+              }}
+            >
+              Drag and drop a folder containing .tsx files to sync with Framer.
+            </p>
+          </>
+        )}
+        {renderUploadStatus()}
       </div>
-      {renderUploadStatus()}
+
       <style>
         {`
           @keyframes spin {
