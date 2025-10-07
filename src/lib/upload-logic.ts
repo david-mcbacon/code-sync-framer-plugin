@@ -19,7 +19,9 @@ import { isIgnored } from "./file-utils";
 
 export const handleFolderUpload = async (
   files: FileList | null,
-  setUploadState: (state: "idle" | "loading" | "success" | "error") => void,
+  setUploadState: (
+    state: "idle" | "loading" | "success" | "error" | "no-changes"
+  ) => void,
   setTotalFiles: (count: number) => void,
   setUploadedCount: (count: number) => void
 ): Promise<void> => {
@@ -32,7 +34,7 @@ export const handleFolderUpload = async (
   const config = await loadConfigFromUpload(allFiles);
 
   // Filter only .tsx files to upload
-  const tsxFiles = allFiles.filter((file) => file.name.endsWith(".tsx"));
+  let tsxFiles = allFiles.filter((file) => file.name.endsWith(".tsx"));
 
   if (tsxFiles.length === 0) {
     console.log("No .tsx files found in the selected folder.");
@@ -41,11 +43,38 @@ export const handleFolderUpload = async (
 
   try {
     // Load import replacement rules, ignored files, and env replacement setting saved in project data
-    const [uiRules, uiIgnored, uiEnvReplacementEnabled] = await Promise.all([
-      loadImportReplacementRules(),
-      loadIgnoredFiles(),
-      loadEnvReplacementSetting(),
-    ]);
+    // Also get the last upload date
+    const [uiRules, uiIgnored, uiEnvReplacementEnabled, lastUploadDateStr] =
+      await Promise.all([
+        loadImportReplacementRules(),
+        loadIgnoredFiles(),
+        loadEnvReplacementSetting(),
+        framer.getPluginData("lastUploadDate"),
+      ]);
+
+    // Filter files based on last modified date
+    if (lastUploadDateStr) {
+      const lastUploadDate = parseInt(lastUploadDateStr, 10);
+      const originalCount = tsxFiles.length;
+      tsxFiles = tsxFiles.filter((file) => file.lastModified > lastUploadDate);
+
+      console.log(
+        `Filtered ${
+          originalCount - tsxFiles.length
+        } unchanged files. Uploading ${tsxFiles.length} modified files.`
+      );
+
+      if (tsxFiles.length === 0) {
+        console.log("No files have been modified since last upload.");
+        setUploadState("no-changes");
+
+        // Reset to idle after showing no-changes message for 3 seconds
+        setTimeout(() => {
+          setUploadState("idle");
+        }, 3000);
+        return;
+      }
+    }
 
     // Merge UI settings with config (config takes precedence)
     const mergedRules = mergeImportReplacementRules(
@@ -184,6 +213,16 @@ export const handleFolderUpload = async (
 
     // Wait for all updates to complete
     await Promise.all(updatePromises);
+
+    // Calculate and store the max modified date from all uploaded files
+    const maxModifiedDate = Math.max(
+      ...tsxFiles.map((file) => file.lastModified)
+    );
+    await framer.setPluginData("lastUploadDate", maxModifiedDate.toString());
+
+    console.log(
+      `Updated last upload date to: ${new Date(maxModifiedDate).toISOString()}`
+    );
 
     // Set success state
     setUploadState("success");

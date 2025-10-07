@@ -3,7 +3,7 @@ import { handleFolderUpload } from "../lib/upload-logic";
 
 export default function FolderUpload() {
   const [uploadState, setUploadState] = useState<
-    "idle" | "loading" | "success" | "error"
+    "idle" | "loading" | "success" | "error" | "no-changes"
   >("idle");
   const [uploadedCount, setUploadedCount] = useState(0);
   const [totalFiles, setTotalFiles] = useState(0);
@@ -247,6 +247,32 @@ export default function FolderUpload() {
             >
               Try Again
             </button>
+          </div>
+        );
+      case "no-changes":
+        return (
+          <div
+            style={{
+              marginTop: "10px",
+              padding: "12px",
+              borderRadius: "4px",
+              display: "flex",
+              alignItems: "center",
+              gap: "10px",
+            }}
+          >
+            <span
+              style={{
+                color: "#2196f3",
+                fontSize: "18px",
+                fontWeight: "bold",
+              }}
+            >
+              ✓
+            </span>
+            <span style={{ color: "#2196f3", fontWeight: "500" }}>
+              All files are up to date! No changes detected since last upload.
+            </span>
           </div>
         );
       default:
