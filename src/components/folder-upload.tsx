@@ -9,7 +9,9 @@ export default function FolderUpload() {
   const [totalFiles, setTotalFiles] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
 
-  const processFiles = async (files: FileList) => {
+  const processFiles = async (files: FileList | null) => {
+    if (!files) return;
+
     // Check if no .tsx files were found
     const tsxFiles = Array.from(files).filter((file) =>
       file.name.endsWith(".tsx")
@@ -27,7 +29,7 @@ export default function FolderUpload() {
     );
   };
 
-  const handleDragEnter = (e: React.DragEvent<HTMLDivElement>) => {
+  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     e.stopPropagation();
     setIsDragging(true);
@@ -39,11 +41,6 @@ export default function FolderUpload() {
     setIsDragging(false);
   };
 
-  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    e.stopPropagation();
-  };
-
   const handleDrop = async (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     e.stopPropagation();
@@ -52,57 +49,53 @@ export default function FolderUpload() {
     if (uploadState === "loading") return;
 
     const items = e.dataTransfer.items;
-    if (!items) return;
-
     const files: File[] = [];
 
-    // Collect all files from the dropped items
-    for (let i = 0; i < items.length; i++) {
-      const item = items[i];
-      if (item.kind === "file") {
-        const entry = item.webkitGetAsEntry();
-        if (entry) {
-          await collectFiles(entry, files);
+    // Process all dropped items
+    if (items) {
+      for (let i = 0; i < items.length; i++) {
+        const item = items[i].webkitGetAsEntry();
+        if (item) {
+          await traverseFileTree(item, "", files);
         }
       }
     }
 
-    if (files.length > 0) {
-      // Convert array to FileList-like object
-      const fileList = createFileList(files);
-      await processFiles(fileList);
-    }
+    // Convert array to FileList-like object
+    const fileList = createFileList(files);
+    await processFiles(fileList);
   };
 
-  // Recursively collect files from directories
-  const collectFiles = async (
-    entry: FileSystemEntry,
+  // Helper function to traverse the directory tree
+  const traverseFileTree = async (
+    item: any,
+    path: string,
     files: File[]
   ): Promise<void> => {
-    if (entry.isFile) {
-      const fileEntry = entry as FileSystemFileEntry;
-      return new Promise((resolve) => {
-        fileEntry.file((file) => {
+    return new Promise((resolve) => {
+      if (item.isFile) {
+        item.file((file: File) => {
+          // Preserve the relative path
+          Object.defineProperty(file, "webkitRelativePath", {
+            value: path + file.name,
+            writable: false,
+          });
           files.push(file);
           resolve();
         });
-      });
-    } else if (entry.isDirectory) {
-      const dirEntry = entry as FileSystemDirectoryEntry;
-      const reader = dirEntry.createReader();
-
-      return new Promise((resolve) => {
-        reader.readEntries(async (entries) => {
+      } else if (item.isDirectory) {
+        const dirReader = item.createReader();
+        dirReader.readEntries(async (entries: any[]) => {
           for (const entry of entries) {
-            await collectFiles(entry, files);
+            await traverseFileTree(entry, path + item.name + "/", files);
           }
           resolve();
         });
-      });
-    }
+      }
+    });
   };
 
-  // Create a FileList-like object from an array of files
+  // Helper function to create a FileList-like object
   const createFileList = (files: File[]): FileList => {
     const dataTransfer = new DataTransfer();
     files.forEach((file) => dataTransfer.items.add(file));
@@ -253,7 +246,6 @@ export default function FolderUpload() {
       <h4>Upload Folder</h4>
       <p>Drag and drop a folder containing .tsx files to sync with Framer.</p>
       <div
-        onDragEnter={handleDragEnter}
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
@@ -265,49 +257,58 @@ export default function FolderUpload() {
             : "2px dashed #ccc",
           borderRadius: "8px",
           backgroundColor: isDragging
-            ? "rgba(33, 150, 243, 0.05)"
+            ? "rgba(0, 123, 255, 0.05)"
             : uploadState === "loading"
-            ? "transparent"
-            : "transparent",
-          cursor: uploadState === "loading" ? "not-allowed" : "pointer",
-          opacity: uploadState === "loading" ? 0.6 : 1,
+            ? "#f5f5f5"
+            : "#fafafa",
           textAlign: "center",
+          cursor: uploadState === "loading" ? "not-allowed" : "pointer",
           transition: "all 0.2s ease",
+          opacity: uploadState === "loading" ? 0.6 : 1,
         }}
       >
         <div
           style={{
-            fontSize: "40px",
+            fontSize: "48px",
             marginBottom: "10px",
             opacity: 0.5,
           }}
         >
           📁
         </div>
-        <div
+        <p
           style={{
-            fontSize: "14px",
-            fontWeight: "500",
+            margin: "0",
             color: isDragging ? "var(--framer-color-tint)" : "#666",
-            marginBottom: "5px",
+            fontWeight: isDragging ? "600" : "400",
+            fontSize: "14px",
           }}
         >
-          {isDragging
+          {uploadState === "loading"
+            ? "Uploading files..."
+            : isDragging
             ? "Drop folder here"
-            : uploadState === "loading"
-            ? "Uploading..."
-            : "Drop folder here"}
-        </div>
-        <div
+            : "Drag and drop a folder here"}
+        </p>
+        <p
           style={{
-            fontSize: "12px",
+            margin: "5px 0 0 0",
             color: "#999",
+            fontSize: "12px",
           }}
         >
-          Only .tsx files will be processed
-        </div>
+          Only .tsx files will be uploaded
+        </p>
       </div>
       {renderUploadStatus()}
+      <style>
+        {`
+          @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+          }
+        `}
+      </style>
     </div>
   );
 }
