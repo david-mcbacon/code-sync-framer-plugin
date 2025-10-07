@@ -15,5 +15,8 @@
     }
   ],
   "ignoredFiles": [],
-  "envReplacement": true
+  "envReplacement": {
+    "from": "development",
+    "to": "staging"
+  }
 }

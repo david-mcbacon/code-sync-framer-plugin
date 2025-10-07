@@ -1,6 +1,6 @@
 import { framer } from "framer-plugin";
 import { withPermission } from "../utils/permission-utils";
-import { CodeSyncConfig, FramerCodeFile, FileProcessingData } from "./types";
+import { FileProcessingData, EnvReplacementRule } from "./types";
 import { readFileContent, getUploadedRelativePath } from "./file-processing";
 import {
   loadConfigFromUpload,
@@ -56,10 +56,27 @@ export const handleFolderUpload = async (
       uiIgnored,
       config?.ignoredFiles || []
     );
-    const mergedEnvReplacementEnabled =
-      typeof config?.envReplacement === "boolean"
-        ? config.envReplacement
-        : uiEnvReplacementEnabled;
+    // Build env replacement rules
+    const envReplacementRules: EnvReplacementRule[] = [];
+
+    // Add rules from config file
+    if (config?.envReplacement) {
+      if (typeof config.envReplacement === "boolean" && config.envReplacement) {
+        // Legacy boolean format: defaults to development -> production
+        envReplacementRules.push({ from: "development", to: "production" });
+      } else if (Array.isArray(config.envReplacement)) {
+        // Array of rules
+        envReplacementRules.push(...config.envReplacement);
+      } else if (typeof config.envReplacement === "object") {
+        // Single rule object
+        envReplacementRules.push(config.envReplacement);
+      }
+    }
+
+    // Add UI setting as fallback (only if no config rules exist)
+    if (envReplacementRules.length === 0 && uiEnvReplacementEnabled) {
+      envReplacementRules.push({ from: "development", to: "production" });
+    }
 
     // Initialize upload state
     setUploadState("loading");
@@ -127,9 +144,12 @@ export const handleFolderUpload = async (
           framerPath
         );
 
-        // Apply ENV replacement if enabled
-        if (mergedEnvReplacementEnabled) {
-          transformedContent = applyEnvReplacement(transformedContent);
+        // Apply ENV replacement if rules are configured
+        if (envReplacementRules.length > 0) {
+          transformedContent = applyEnvReplacement(
+            transformedContent,
+            envReplacementRules
+          );
         }
 
         // Ensure all relative imports have .tsx extension

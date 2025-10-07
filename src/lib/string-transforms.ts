@@ -92,19 +92,36 @@ const replaceImportSpecifier = (
   return content;
 };
 
-export const applyEnvReplacement = (content: string): string => {
-  // Replace ENV.property.development with ENV.property.production
-  // Pattern 1: ENV.something.development
-  content = content.replace(
-    /\bENV\.([a-zA-Z_$][a-zA-Z0-9_$]*)\.development\b/g,
-    "ENV.$1.production"
-  );
+export const applyEnvReplacement = (
+  content: string,
+  replacementRules: Array<{ from: string; to: string }>
+): string => {
+  if (!replacementRules.length) return content;
 
-  // Pattern 2: ENV["something"]["development"] or ENV['something']['development']
-  content = content.replace(
-    /\bENV\[(['"])([a-zA-Z_$][a-zA-Z0-9_$]*)\1\]\[(['"])development\3\]/g,
-    "ENV[$1$2$1][$3production$3]"
-  );
+  for (const rule of replacementRules) {
+    const { from, to } = rule;
+
+    // Escape special regex characters in environment names
+    const escapedFrom = from.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+    // Pattern 1: ENV.something.from -> ENV.something.to
+    content = content.replace(
+      new RegExp(
+        `\\bENV\\.([a-zA-Z_$][a-zA-Z0-9_$]*)\\.${escapedFrom}\\b`,
+        "g"
+      ),
+      `ENV.$1.${to}`
+    );
+
+    // Pattern 2: ENV["something"]["from"] or ENV['something']['from']
+    content = content.replace(
+      new RegExp(
+        `\\bENV\\[(['"])([a-zA-Z_$][a-zA-Z0-9_$]*)\\1\\]\\[(['"])${escapedFrom}\\3\\]`,
+        "g"
+      ),
+      `ENV[$1$2$1][$3${to}$3]`
+    );
+  }
 
   return content;
 };

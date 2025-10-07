@@ -1,10 +1,15 @@
 export type ImportReplacementRule = { find: string; replace: string };
 
+export type EnvReplacementRule = {
+  from: string;
+  to: string;
+};
+
 export type CodeSyncConfig = {
   version?: number;
   importReplacements?: ImportReplacementRule[];
   ignoredFiles?: string[];
-  envReplacement?: boolean;
+  envReplacement?: boolean | EnvReplacementRule | EnvReplacementRule[];
 };
 
 export type FramerCodeFile = {

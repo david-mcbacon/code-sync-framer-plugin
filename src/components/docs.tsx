@@ -50,7 +50,10 @@ export default function Docs() {
     "Cart.tsx",
     "hooks/Cart.tsx"
   ],
-  "envReplacement": true
+  "envReplacement": {
+    "from": "development",
+    "to": "production"
+  }
 }`}</code>
         </pre>
       </div>
@@ -76,8 +79,15 @@ export default function Docs() {
             are not uploaded.
           </li>
           <li>
-            <b>envReplacement</b>: when true, converts ENV.<i>key</i>
-            .development to ENV.<i>key</i>.production during upload.
+            <b>envReplacement</b>: replaces environment names in ENV object
+            access. Can be a boolean (true defaults to development→production),
+            an object with "from" and "to" fields, or an array of such objects
+            for multiple replacements. Example:{" "}
+            <code>
+              {
+                '[{"from": "development", "to": "production"}, {"from": "staging", "to": "production"}]'
+              }{" "}
+            </code>
           </li>
           <li>
             Only <code>.tsx</code> files are uploaded.
