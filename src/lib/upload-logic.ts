@@ -23,7 +23,8 @@ export const handleFolderUpload = async (
     state: "idle" | "loading" | "success" | "error" | "no-changes"
   ) => void,
   setTotalFiles: (count: number) => void,
-  setUploadedCount: (count: number) => void
+  setUploadedCount: (count: number) => void,
+  overwriteAll: boolean = false
 ): Promise<void> => {
   if (!files) return;
 
@@ -52,8 +53,8 @@ export const handleFolderUpload = async (
         framer.getPluginData("lastUploadDate"),
       ]);
 
-    // Filter files based on last modified date
-    if (lastUploadDateStr) {
+    // Filter files based on last modified date (only if overwriteAll is false)
+    if (!overwriteAll && lastUploadDateStr) {
       const lastUploadDate = parseInt(lastUploadDateStr, 10);
       const originalCount = tsxFiles.length;
       tsxFiles = tsxFiles.filter((file) => file.lastModified > lastUploadDate);

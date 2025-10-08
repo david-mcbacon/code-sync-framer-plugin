@@ -8,6 +8,7 @@ export default function FolderUpload() {
   const [uploadedCount, setUploadedCount] = useState(0);
   const [totalFiles, setTotalFiles] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
+  const [overwriteAll, setOverwriteAll] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const processFiles = async (files: FileList | null) => {
@@ -26,7 +27,8 @@ export default function FolderUpload() {
       files,
       setUploadState,
       setTotalFiles,
-      setUploadedCount
+      setUploadedCount,
+      overwriteAll
     );
   };
 
@@ -300,6 +302,40 @@ export default function FolderUpload() {
         style={{ display: "none", height: "100%" }}
       />
 
+      {uploadState === "idle" && (
+        <div
+          style={{
+            marginBottom: "15px",
+            display: "flex",
+            alignItems: "center",
+            gap: "8px",
+            paddingTop: "4px",
+          }}
+        >
+          <input
+            type="checkbox"
+            id="overwriteAll"
+            checked={overwriteAll}
+            onChange={(e) => setOverwriteAll(e.target.checked)}
+            style={{
+              width: "16px",
+              height: "16px",
+              cursor: "pointer",
+            }}
+          />
+          <label
+            htmlFor="overwriteAll"
+            style={{
+              fontSize: "12px",
+              cursor: "pointer",
+              userSelect: "none",
+            }}
+          >
+            Overwrite all files
+          </label>
+        </div>
+      )}
+
       <div
         onClick={handleClick}
         onDragOver={handleDragOver}
@@ -307,7 +343,7 @@ export default function FolderUpload() {
         onDrop={handleDrop}
         style={{
           padding: "40px 20px",
-          height: "100%",
+          height: "90%",
           border: isDragging
             ? "2px dashed var(--framer-color-tint)"
             : "2px dashed var(--framer-color-bg-tertiary)",
