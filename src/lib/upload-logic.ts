@@ -6,7 +6,7 @@ import {
   loadConfigFromUpload,
   loadImportReplacementRules,
   loadIgnoredFiles,
-  loadEnvReplacementSetting,
+  loadEnvReplacementSelection,
   mergeImportReplacementRules,
   mergeIgnoredFiles,
 } from "./config-loader";
@@ -45,13 +45,16 @@ export const handleFolderUpload = async (
   try {
     // Load import replacement rules, ignored files, and env replacement setting saved in project data
     // Also get the last upload date
-    const [uiRules, uiIgnored, uiEnvReplacementEnabled, lastUploadDateStr] =
+    const [uiRules, uiIgnored, envSelectionRaw, lastUploadDateStr] =
       await Promise.all([
         loadImportReplacementRules(),
         loadIgnoredFiles(),
-        loadEnvReplacementSetting(),
+        loadEnvReplacementSelection(),
         framer.getPluginData("lastUploadDate"),
       ]);
+    const envSelection = envSelectionRaw?.trim()
+      ? envSelectionRaw.trim()
+      : null;
 
     // Filter files based on last modified date (only if overwriteAll is false)
     if (!overwriteAll && lastUploadDateStr) {
@@ -89,7 +92,7 @@ export const handleFolderUpload = async (
     // Build env replacement rules
     const envReplacementRules: EnvReplacementRule[] = [];
 
-    // Add rules from config file
+    // Add rules from config file (backwards compatibility)
     if (config?.envReplacement) {
       if (typeof config.envReplacement === "boolean" && config.envReplacement) {
         // Legacy boolean format: defaults to development -> production
@@ -103,9 +106,10 @@ export const handleFolderUpload = async (
       }
     }
 
-    // Add UI setting as fallback (only if no config rules exist)
-    if (envReplacementRules.length === 0 && uiEnvReplacementEnabled) {
-      envReplacementRules.push({ from: "development", to: "production" });
+    // Apply project-level selection if available (takes precedence over config)
+    if (envSelection) {
+      envReplacementRules.length = 0;
+      envReplacementRules.push({ from: "development", to: envSelection });
     }
 
     // Initialize upload state

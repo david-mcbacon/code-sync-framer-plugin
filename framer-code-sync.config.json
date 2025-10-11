@@ -14,9 +14,5 @@
       "replace": "https://framer.com/m/UseCurrentLocation-oZyA.js@1l8XdClJld0xwptzsD73"
     }
   ],
-  "ignoredFiles": [],
-  "envReplacement": {
-    "from": "development",
-    "to": "staging"
-  }
+  "ignoredFiles": []
 }

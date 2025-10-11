@@ -219,13 +219,12 @@ export const loadIgnoredFiles = async (): Promise<string[]> => {
   }
 };
 
-export const loadEnvReplacementSetting = async (): Promise<boolean> => {
+export const loadEnvReplacementSelection = async (): Promise<string | null> => {
   try {
-    const raw = await framer.getPluginData("enableEnvReplacement");
-    if (!raw) return false;
-    const parsed: unknown = JSON.parse(raw);
-    return typeof parsed === "boolean" ? parsed : false;
+    const value = await framer.getPluginData("envReplacementTarget");
+    if (!value) return null;
+    return value;
   } catch {
-    return false;
+    return null;
   }
 };

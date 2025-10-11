@@ -10,10 +10,13 @@ export default function Docs() {
         overflow: "auto",
       }}
     >
-      <h4>Configuration via framer-code-sync.config.json/jsonc</h4>
+      <h4>Environment & Configuration</h4>
       <p style={{ color: "#ababab", marginTop: "6px" }}>
-        This plugin now uses a file-based config. Add a config file at the root
-        of the uploaded folder (next to your source files):
+        Use the environment selector above the upload panel to choose which env
+        should replace <code>ENV</code> references. The selection persists per
+        project via <code>framer.setPluginData</code> so collaborators share the
+        same target. You can still add a config file at the root of the uploaded
+        folder (next to your source files):
       </p>
       <ul style={{ marginTop: 8, color: "#ababab" }}>
         <li>
@@ -31,7 +34,7 @@ export default function Docs() {
           borderRadius: 6,
         }}
       >
-        <div style={{ fontWeight: 600, marginBottom: 6 }}>Example</div>
+        <div style={{ fontWeight: 600, marginBottom: 6 }}>Config Example</div>
         <pre
           style={{
             margin: 0,
@@ -49,11 +52,7 @@ export default function Docs() {
   "ignoredFiles": [
     "Cart.tsx",
     "hooks/Cart.tsx"
-  ],
-  "envReplacement": {
-    "from": "development",
-    "to": "production"
-  }
+  ]
 }`}</code>
         </pre>
       </div>
@@ -77,17 +76,6 @@ export default function Docs() {
             <b>ignoredFiles</b>: entries can be a filename (e.g. "Cart.tsx") or
             a path from the uploaded root (e.g. "hooks/Cart.tsx"). Ignored files
             are not uploaded.
-          </li>
-          <li>
-            <b>envReplacement</b>: replaces environment names in ENV object
-            access. Can be a boolean (true defaults to development→production),
-            an object with "from" and "to" fields, or an array of such objects
-            for multiple replacements. Example:{" "}
-            <code>
-              {
-                '[{"from": "development", "to": "production"}, {"from": "staging", "to": "production"}]'
-              }{" "}
-            </code>
           </li>
           <li>
             Only <code>.tsx</code> files are uploaded.
