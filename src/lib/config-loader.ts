@@ -3,6 +3,7 @@ import {
   CodeSyncConfig,
   ImportReplacementRule,
   EnvReplacementRule,
+  StringReplacementRule,
 } from "./types";
 import { readFileContent, getUploadedRelativePath } from "./file-processing";
 
@@ -129,6 +130,17 @@ const sanitizeConfig = (raw: unknown): CodeSyncConfig => {
         .map((s) => s.replace(/^\.?\//, ""))
         .filter(Boolean) as string[];
     }
+    if (Array.isArray(obj.stringReplacements)) {
+      out.stringReplacements = obj.stringReplacements
+        .map((rule) => {
+          if (!rule || typeof rule !== "object") return null;
+          const rec = rule as Record<string, unknown>;
+          const find = typeof rec.find === "string" ? rec.find : "";
+          const replace = typeof rec.replace === "string" ? rec.replace : "";
+          return find ? { find, replace } : null;
+        })
+        .filter(Boolean) as StringReplacementRule[];
+    }
     if (typeof obj.envReplacement === "boolean") {
       out.envReplacement = obj.envReplacement;
     } else if (obj.envReplacement && typeof obj.envReplacement === "object") {
@@ -226,5 +238,27 @@ export const loadEnvReplacementSelection = async (): Promise<string | null> => {
     return value;
   } catch {
     return null;
+  }
+};
+
+export const loadStringReplacementRules = async (): Promise<
+  StringReplacementRule[]
+> => {
+  try {
+    const raw = await framer.getPluginData("stringReplacements");
+    if (!raw) return [];
+    const parsed: unknown = JSON.parse(raw);
+    if (!Array.isArray(parsed)) return [];
+    return parsed
+      .map((rule) => {
+        if (!rule || typeof rule !== "object") return null;
+        const rec = rule as Record<string, unknown>;
+        const find = typeof rec.find === "string" ? rec.find : "";
+        const replace = typeof rec.replace === "string" ? rec.replace : "";
+        return find ? { find, replace } : null;
+      })
+      .filter(Boolean) as StringReplacementRule[];
+  } catch {
+    return [];
   }
 };

@@ -52,6 +52,13 @@ export default function Docs() {
   "ignoredFiles": [
     "Cart.tsx",
     "hooks/Cart.tsx"
+  ],
+  "stringReplacements": [
+    { "find": "(api.tasks.get)", "replace": "(tasks:get)" },
+    {
+      "find": "import { api } from \"../../../../convex/_generated/api\";",
+      "replace": ""
+    }
   ]
 }`}</code>
         </pre>
@@ -76,6 +83,11 @@ export default function Docs() {
             <b>ignoredFiles</b>: entries can be a filename (e.g. "Cart.tsx") or
             a path from the uploaded root (e.g. "hooks/Cart.tsx"). Ignored files
             are not uploaded.
+          </li>
+          <li>
+            <b>stringReplacements</b>: performs simple find/replace on file
+            contents. Use plain strings for literal matches or regex syntax like
+            <code>/foo/gi</code> for advanced patterns.
           </li>
           <li>
             Only <code>.tsx</code> files are uploaded.

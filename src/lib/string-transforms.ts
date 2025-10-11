@@ -1,4 +1,4 @@
-import { ImportReplacementRule } from "./types";
+import { ImportReplacementRule, StringReplacementRule } from "./types";
 
 export const applyImportReplacements = (
   content: string,
@@ -90,6 +90,43 @@ const replaceImportSpecifier = (
   );
 
   return content;
+};
+
+const isRegexPattern = (pattern: string): boolean =>
+  pattern.startsWith("/") && pattern.lastIndexOf("/") > 0;
+
+const buildRegexFromPattern = (pattern: string): RegExp | null => {
+  const lastSlash = pattern.lastIndexOf("/");
+  if (lastSlash <= 0) return null;
+  const body = pattern.slice(1, lastSlash);
+  const flags = pattern.slice(lastSlash + 1);
+
+  try {
+    return new RegExp(body, flags || "g");
+  } catch {
+    return null;
+  }
+};
+
+export const applyStringReplacements = (
+  content: string,
+  replacements: StringReplacementRule[]
+): string => {
+  if (!replacements.length) return content;
+
+  return replacements.reduce((acc, rule) => {
+    if (!rule.find) return acc;
+
+    if (isRegexPattern(rule.find)) {
+      const regex = buildRegexFromPattern(rule.find);
+      if (!regex) return acc;
+      return acc.replace(regex, rule.replace ?? "");
+    }
+
+    const escapedFind = rule.find.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    const literalRegex = new RegExp(escapedFind, "g");
+    return acc.replace(literalRegex, rule.replace ?? "");
+  }, content);
 };
 
 export const applyEnvReplacement = (

@@ -1,18 +1,24 @@
 import { framer } from "framer-plugin";
 import { withPermission } from "../utils/permission-utils";
-import { FileProcessingData, EnvReplacementRule } from "./types";
+import {
+  FileProcessingData,
+  EnvReplacementRule,
+  StringReplacementRule,
+} from "./types";
 import { readFileContent, getUploadedRelativePath } from "./file-processing";
 import {
   loadConfigFromUpload,
   loadImportReplacementRules,
   loadIgnoredFiles,
   loadEnvReplacementSelection,
+  loadStringReplacementRules,
   mergeImportReplacementRules,
   mergeIgnoredFiles,
 } from "./config-loader";
 import {
   applyImportReplacements,
   applyEnvReplacement,
+  applyStringReplacements,
   ensureTsxExtensions,
 } from "./string-transforms";
 import { isIgnored } from "./file-utils";
@@ -45,13 +51,19 @@ export const handleFolderUpload = async (
   try {
     // Load import replacement rules, ignored files, and env replacement setting saved in project data
     // Also get the last upload date
-    const [uiRules, uiIgnored, envSelectionRaw, lastUploadDateStr] =
-      await Promise.all([
-        loadImportReplacementRules(),
-        loadIgnoredFiles(),
-        loadEnvReplacementSelection(),
-        framer.getPluginData("lastUploadDate"),
-      ]);
+    const [
+      uiRules,
+      uiIgnored,
+      envSelectionRaw,
+      lastUploadDateStr,
+      uiStringReplacements,
+    ] = await Promise.all([
+      loadImportReplacementRules(),
+      loadIgnoredFiles(),
+      loadEnvReplacementSelection(),
+      framer.getPluginData("lastUploadDate"),
+      loadStringReplacementRules(),
+    ]);
     const envSelection = envSelectionRaw?.trim()
       ? envSelectionRaw.trim()
       : null;
@@ -89,6 +101,10 @@ export const handleFolderUpload = async (
       uiIgnored,
       config?.ignoredFiles || []
     );
+    const mergedStringReplacements: StringReplacementRule[] = [
+      ...uiStringReplacements,
+      ...(config?.stringReplacements || []),
+    ];
     // Build env replacement rules
     const envReplacementRules: EnvReplacementRule[] = [];
 
@@ -183,6 +199,13 @@ export const handleFolderUpload = async (
           transformedContent = applyEnvReplacement(
             transformedContent,
             envReplacementRules
+          );
+        }
+
+        if (mergedStringReplacements.length > 0) {
+          transformedContent = applyStringReplacements(
+            transformedContent,
+            mergedStringReplacements
           );
         }
 

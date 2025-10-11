@@ -1,5 +1,7 @@
 export type ImportReplacementRule = { find: string; replace: string };
 
+export type StringReplacementRule = { find: string; replace: string };
+
 export type EnvReplacementRule = {
   from: string;
   to: string;
@@ -9,6 +11,7 @@ export type CodeSyncConfig = {
   version?: number;
   importReplacements?: ImportReplacementRule[];
   ignoredFiles?: string[];
+  stringReplacements?: StringReplacementRule[];
   envReplacement?: boolean | EnvReplacementRule | EnvReplacementRule[];
 };
 

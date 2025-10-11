@@ -357,98 +357,96 @@ export default function FolderUpload() {
         style={{ display: "none", height: "100%" }}
       />
 
-      {uploadState === "idle" && (
+      <div
+        style={{
+          marginBottom: "15px",
+          display: "flex",
+          alignItems: "center",
+          gap: "10px",
+          paddingTop: "4px",
+          width: "100%",
+        }}
+      >
         <div
           style={{
-            marginBottom: "15px",
             display: "flex",
+            flexDirection: "row",
+            justifyItems: "center",
             alignItems: "center",
-            gap: "10px",
-            paddingTop: "4px",
+            gap: "8px",
             width: "100%",
           }}
         >
-          <div
+          <label
+            htmlFor="environmentTarget"
             style={{
-              display: "flex",
-              flexDirection: "row",
-              justifyItems: "center",
-              alignItems: "center",
-              gap: "8px",
-              width: "100%",
+              fontSize: "12px",
+              color: "#888",
+              userSelect: "none",
             }}
           >
-            <label
-              htmlFor="environmentTarget"
-              style={{
-                fontSize: "12px",
-                color: "#888",
-                userSelect: "none",
-              }}
-            >
-              Env
-            </label>
-            <select
-              id="environmentTarget"
-              value={envTarget}
-              onChange={handleEnvChange}
-              disabled={isLoadingEnv}
-              style={{
-                width: "100px",
-                padding: "4px 8px",
-                borderRadius: "4px",
-                border: "1px solid var(--framer-color-bg-tertiary)",
-                backgroundColor: "rgba(255,255,255,0.05)",
-                color: "#fff",
-                fontSize: "12px",
-                cursor: isLoadingEnv ? "wait" : "pointer",
-                minHeight: "26px",
-              }}
-            >
-              <option value="development" style={{ color: "#000" }}>
-                Development
-              </option>
-              <option value="staging" style={{ color: "#000" }}>
-                Staging
-              </option>
-              <option value="production" style={{ color: "#000" }}>
-                Production
-              </option>
-            </select>
-          </div>
-
-          <div
+            Env
+          </label>
+          <select
+            id="environmentTarget"
+            value={envTarget}
+            onChange={handleEnvChange}
+            disabled={isLoadingEnv}
             style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "8px",
-              width: "100%",
+              width: "100px",
+              padding: "4px 8px",
+              borderRadius: "4px",
+              border: "1px solid var(--framer-color-bg-tertiary)",
+              backgroundColor: "rgba(255,255,255,0.05)",
+              color: "#fff",
+              fontSize: "12px",
+              cursor: isLoadingEnv ? "wait" : "pointer",
+              minHeight: "26px",
             }}
           >
-            <input
-              type="checkbox"
-              id="overwriteAll"
-              checked={overwriteAll}
-              onChange={(e) => setOverwriteAll(e.target.checked)}
-              style={{
-                width: "16px",
-                height: "16px",
-                cursor: "pointer",
-              }}
-            />
-            <label
-              htmlFor="overwriteAll"
-              style={{
-                fontSize: "12px",
-                cursor: "pointer",
-                userSelect: "none",
-              }}
-            >
-              Overwrite all files
-            </label>
-          </div>
+            <option value="development" style={{ color: "#000" }}>
+              Development
+            </option>
+            <option value="staging" style={{ color: "#000" }}>
+              Staging
+            </option>
+            <option value="production" style={{ color: "#000" }}>
+              Production
+            </option>
+          </select>
         </div>
-      )}
+
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "8px",
+            width: "100%",
+          }}
+        >
+          <input
+            type="checkbox"
+            id="overwriteAll"
+            checked={overwriteAll}
+            onChange={(e) => setOverwriteAll(e.target.checked)}
+            style={{
+              width: "16px",
+              height: "16px",
+              cursor: "pointer",
+            }}
+          />
+          <label
+            htmlFor="overwriteAll"
+            style={{
+              fontSize: "12px",
+              cursor: "pointer",
+              userSelect: "none",
+            }}
+          >
+            Overwrite all files
+          </label>
+        </div>
+      </div>
 
       <div
         onClick={handleClick}

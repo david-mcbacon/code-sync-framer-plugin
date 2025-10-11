@@ -14,5 +14,12 @@
       "replace": "https://framer.com/m/UseCurrentLocation-oZyA.js@1l8XdClJld0xwptzsD73"
     }
   ],
-  "ignoredFiles": []
+  "ignoredFiles": [],
+  "stringReplacements": [
+    { "find": "(api.tasks.get)", "replace": "(\"tasks:get\")" },
+    {
+      "find": "import { api } from \"../../../../convex/_generated/api\";",
+      "replace": ""
+    }
+  ]
 }
