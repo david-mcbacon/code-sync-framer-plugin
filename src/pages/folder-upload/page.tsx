@@ -1,8 +1,8 @@
 import React, { useState, useRef, useEffect } from "react";
 import { framer } from "framer-plugin";
-import { handleFolderUpload } from "../lib/upload-logic";
+import { handleFolderUpload } from "../../lib/upload-logic";
 
-export default function FolderUpload() {
+export default function FolderUploadPage() {
   const [uploadState, setUploadState] = useState<
     "idle" | "loading" | "success" | "error" | "no-changes"
   >("idle");
@@ -398,8 +398,8 @@ export default function FolderUpload() {
               borderRadius: "4px",
               border: "1px solid var(--framer-color-bg-tertiary)",
               backgroundColor: "rgba(255,255,255,0.05)",
-              color: "#fff",
-              fontSize: "12px",
+              color: "var(--framer-color-text)",
+              fontSize: "11px",
               cursor: isLoadingEnv ? "wait" : "pointer",
               minHeight: "26px",
             }}

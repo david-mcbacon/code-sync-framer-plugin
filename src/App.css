@@ -35,11 +35,11 @@
 }
 
 [data-framer-theme="light"] .active {
-    background-color: #d3d3d3;
+    background-color: #e0e0e0;
 }
 
 [data-framer-theme="light"] .active:hover {
-    background-color: #d3d3d3;
+    background-color: #e0e0e0;
 }
 
 

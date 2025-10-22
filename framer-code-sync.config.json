@@ -3,23 +3,15 @@
   "importReplacements": [
     {
       "find": "@stripe/stripe-js",
-      "replace": "./Lib/Stripe_bundle.tsx"
-    },
-    {
-      "find": "@stripe/react-stripe-js",
-      "replace": "./Lib/Stripe_bundle.tsx"
+      "replace": "./Bundles/Stripe_bundle.tsx"
     },
     {
       "find": "./Mock/Use_current_location.tsx",
       "replace": "https://framer.com/m/UseCurrentLocation-oZyA.js@1l8XdClJld0xwptzsD73"
     }
   ],
-  "ignoredFiles": [],
+  "ignoredFiles": ["./Mock/Use_current_location.tsx"],
   "stringReplacements": [
-    { "find": "(api.tasks.get)", "replace": "(\"tasks:get\")" },
-    {
-      "find": "import { api } from \"../../../../convex/_generated/api\";",
-      "replace": ""
-    }
+    { "find": "(api.tasks.get)", "replace": "(\"tasks:get\")" }
   ]
 }
