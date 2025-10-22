@@ -381,7 +381,7 @@ export default function FolderUploadPage() {
             htmlFor="environmentTarget"
             style={{
               fontSize: "12px",
-              color: "#888",
+              color: "var(--framer-color-text)",
               userSelect: "none",
             }}
           >
@@ -441,6 +441,7 @@ export default function FolderUploadPage() {
               fontSize: "12px",
               cursor: "pointer",
               userSelect: "none",
+              color: "var(--framer-color-text)",
             }}
           >
             Overwrite all files
