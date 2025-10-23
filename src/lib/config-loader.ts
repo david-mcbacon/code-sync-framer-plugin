@@ -2,7 +2,6 @@ import { framer } from "framer-plugin";
 import {
   CodeSyncConfig,
   ImportReplacementRule,
-  EnvReplacementRule,
   StringReplacementRule,
 } from "./types";
 import { readFileContent, getUploadedRelativePath } from "./file-processing";
@@ -140,30 +139,6 @@ const sanitizeConfig = (raw: unknown): CodeSyncConfig => {
           return find ? { find, replace } : null;
         })
         .filter(Boolean) as StringReplacementRule[];
-    }
-    if (typeof obj.envReplacement === "boolean") {
-      out.envReplacement = obj.envReplacement;
-    } else if (obj.envReplacement && typeof obj.envReplacement === "object") {
-      if (Array.isArray(obj.envReplacement)) {
-        // Handle array of replacement rules
-        out.envReplacement = obj.envReplacement
-          .map((rule) => {
-            if (!rule || typeof rule !== "object") return null;
-            const rec = rule as Record<string, unknown>;
-            const from = typeof rec.from === "string" ? rec.from.trim() : "";
-            const to = typeof rec.to === "string" ? rec.to.trim() : "";
-            return from && to ? { from, to } : null;
-          })
-          .filter(Boolean) as EnvReplacementRule[];
-      } else {
-        // Handle single replacement rule
-        const rec = obj.envReplacement as Record<string, unknown>;
-        const from = typeof rec.from === "string" ? rec.from.trim() : "";
-        const to = typeof rec.to === "string" ? rec.to.trim() : "";
-        if (from && to) {
-          out.envReplacement = { from, to };
-        }
-      }
     }
   }
   return out;

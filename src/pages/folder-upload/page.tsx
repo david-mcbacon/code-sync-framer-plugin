@@ -176,8 +176,37 @@ export default function FolderUploadPage() {
     files.forEach((file) => dataTransfer.items.add(file));
     return dataTransfer.files;
   };
+
   const renderUploadStatus = () => {
     switch (uploadState) {
+      case "idle":
+        return (
+          <>
+            <p
+              style={{
+                margin: "0",
+                color: isDragging
+                  ? "var(--framer-color-tint)"
+                  : "var(--framer-color-text-secondary)",
+                fontWeight: "500",
+                fontSize: "14px",
+              }}
+            >
+              {isDragging
+                ? "Drop folder here"
+                : "Drag folder or click to browse"}
+            </p>
+            <p
+              style={{
+                margin: "5px 0 0 0",
+                color: "var(--framer-color-text-tertiary)",
+                fontSize: "12px",
+              }}
+            >
+              Drag and drop a folder containing .tsx files to sync with Framer.
+            </p>
+          </>
+        );
       case "loading":
         return (
           <div
@@ -473,10 +502,15 @@ export default function FolderUploadPage() {
           flexDirection: "column",
           justifyContent: "center",
           alignItems: "center",
+          position: "relative",
         }}
       >
         <div
           style={{
+            position: "absolute",
+            top: "38%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
             fontSize: "48px",
             marginBottom: "10px",
             opacity: 0.5,
@@ -484,34 +518,19 @@ export default function FolderUploadPage() {
         >
           📁
         </div>
-        {uploadState === "idle" && (
-          <>
-            <p
-              style={{
-                margin: "0",
-                color: isDragging ? "var(--framer-color-tint)" : "#666",
-                fontWeight: isDragging ? "600" : "400",
-                fontSize: "14px",
-              }}
-            >
-              {uploadState === "loading"
-                ? "Uploading files..."
-                : isDragging
-                ? "Drop folder here"
-                : "Drag folder or click to browse"}
-            </p>
-            <p
-              style={{
-                margin: "5px 0 0 0",
-                color: "#999",
-                fontSize: "12px",
-              }}
-            >
-              Drag and drop a folder containing .tsx files to sync with Framer.
-            </p>
-          </>
-        )}
-        {renderUploadStatus()}
+
+        <div
+          style={{
+            position: "absolute",
+            top: "62%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            width: "100%",
+            padding: "28px",
+          }}
+        >
+          {renderUploadStatus()}
+        </div>
       </div>
 
       <style>

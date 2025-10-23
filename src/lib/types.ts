@@ -12,7 +12,6 @@ export type CodeSyncConfig = {
   importReplacements?: ImportReplacementRule[];
   ignoredFiles?: string[];
   stringReplacements?: StringReplacementRule[];
-  envReplacement?: boolean | EnvReplacementRule | EnvReplacementRule[];
 };
 
 export type FramerCodeFile = {

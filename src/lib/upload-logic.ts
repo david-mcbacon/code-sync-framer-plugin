@@ -105,26 +105,9 @@ export const handleFolderUpload = async (
       ...uiStringReplacements,
       ...(config?.stringReplacements || []),
     ];
-    // Build env replacement rules
+    // Build env replacement rules from UI selection
     const envReplacementRules: EnvReplacementRule[] = [];
-
-    // Add rules from config file (backwards compatibility)
-    if (config?.envReplacement) {
-      if (typeof config.envReplacement === "boolean" && config.envReplacement) {
-        // Legacy boolean format: defaults to development -> production
-        envReplacementRules.push({ from: "development", to: "production" });
-      } else if (Array.isArray(config.envReplacement)) {
-        // Array of rules
-        envReplacementRules.push(...config.envReplacement);
-      } else if (typeof config.envReplacement === "object") {
-        // Single rule object
-        envReplacementRules.push(config.envReplacement);
-      }
-    }
-
-    // Apply project-level selection if available (takes precedence over config)
     if (envSelection) {
-      envReplacementRules.length = 0;
       envReplacementRules.push({ from: "development", to: envSelection });
     }
 
