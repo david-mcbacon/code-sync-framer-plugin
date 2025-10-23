@@ -16,6 +16,7 @@ export default function FolderUploadPage() {
   const [overwriteAll, setOverwriteAll] = useState(false);
   const [envTarget, setEnvTarget] = useState<string>("production");
   const [unpackToRoot, setUnpackToRoot] = useState(true);
+  const [uploadMode, setUploadMode] = useState<"folder" | "files">("folder");
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
@@ -40,13 +41,26 @@ export default function FolderUploadPage() {
     const items = e.dataTransfer.items;
     const files: File[] = [];
 
-    // Process all dropped items
+    // IMPORTANT: Capture all entries synchronously first!
+    // DataTransferItemList becomes invalid after async operations
+    const entries: any[] = [];
     if (items) {
       for (let i = 0; i < items.length; i++) {
         const item = items[i].webkitGetAsEntry();
         if (item) {
-          await traverseFileTree(item, "", files);
+          entries.push(item);
         }
+      }
+    }
+
+    // Now process all entries asynchronously
+    for (let i = 0; i < entries.length; i++) {
+      const entry = entries[i];
+
+      try {
+        await traverseFileTree(entry, "", files);
+      } catch (error) {
+        console.error(`Error processing entry ${i}:`, error);
       }
     }
 
@@ -103,16 +117,18 @@ export default function FolderUploadPage() {
         setOverwriteAll={setOverwriteAll}
         unpackToRoot={unpackToRoot}
         setUnpackToRoot={setUnpackToRoot}
+        uploadMode={uploadMode}
+        setUploadMode={setUploadMode}
       />
       {/* DROP ZONE */}
       <div style={{ flex: 1, width: "100%" }}>
         <input
           ref={fileInputRef}
           type="file"
-          // @ts-expect-error - webkitdirectory is not a valid attribute
-          webkitdirectory=""
-          directory=""
-          multiple
+          {...(uploadMode === "folder"
+            ? { webkitdirectory: "", directory: "" }
+            : {})}
+          multiple={uploadMode === "files"}
           onChange={handleFileInputChange}
           style={{ display: "none", height: "100%" }}
         />
@@ -151,12 +167,13 @@ export default function FolderUploadPage() {
           <div
             style={{
               position: "absolute",
-              top: "38%",
+              top: "50%",
               left: "50%",
-              transform: "translate(-50%, -50%)",
+              transform: "translate(-50%, -70px)",
               fontSize: "48px",
               marginBottom: "10px",
-              opacity: 0.5,
+              opacity: 0.7,
+              userSelect: "none",
             }}
           >
             📁
@@ -165,11 +182,11 @@ export default function FolderUploadPage() {
           <div
             style={{
               position: "absolute",
-              top: "62%",
+              top: "50%",
               left: "50%",
-              transform: "translate(-50%, -50%)",
+              transform: "translate(-50%, -20px)",
               width: "100%",
-              padding: "28px",
+              padding: "24px 12px",
             }}
           >
             <UploadStatus

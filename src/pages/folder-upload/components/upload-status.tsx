@@ -30,7 +30,7 @@ export default function UploadStatus({
               fontSize: "14px",
             }}
           >
-            {isDragging ? "Drop folder here" : "Drag folder or click to browse"}
+            {isDragging ? "Drop here" : "Drag or click to browse"}
           </p>
           <p
             style={{
@@ -39,7 +39,8 @@ export default function UploadStatus({
               fontSize: "12px",
             }}
           >
-            Drag and drop a folder containing .tsx files to sync with Framer.
+            Drag and drop a folder containing .tsx files or drag and drop
+            multiple files.
           </p>
         </>
       );
@@ -93,14 +94,13 @@ export default function UploadStatus({
             display: "flex",
             alignItems: "center",
             flexDirection: "column",
-            gap: "5px",
           }}
         >
           <p
             style={{
               color: "var(--color-success)",
               fontSize: "24px",
-              fontWeight: "bold",
+              fontWeight: "500",
             }}
           >
             ✓
@@ -118,7 +118,7 @@ export default function UploadStatus({
             alignItems: "center",
             flexDirection: "column",
             justifyContent: "center",
-            gap: "15px",
+            gap: "10px",
           }}
         >
           <div
@@ -136,7 +136,7 @@ export default function UploadStatus({
           <button
             onClick={() => setUploadState("idle")}
             style={{
-              padding: "6px 12px",
+              padding: "6px 20px",
               backgroundColor: "var(--framer-color-bg-tertiary)",
               display: "flex",
               alignItems: "center",
@@ -147,6 +147,7 @@ export default function UploadStatus({
               fontSize: "12px",
               lineHeight: "1",
               fontWeight: "500",
+              width: "fit-content",
             }}
           >
             Try Again
@@ -157,7 +158,6 @@ export default function UploadStatus({
       return (
         <div
           style={{
-            padding: "10px",
             borderRadius: "4px",
             display: "flex",
             alignItems: "center",
@@ -169,8 +169,8 @@ export default function UploadStatus({
           <span
             style={{
               color: "var(--color-success)",
-              fontSize: "18px",
-              fontWeight: "bold",
+              fontSize: "20px",
+              fontWeight: "500",
             }}
           >
             ✓

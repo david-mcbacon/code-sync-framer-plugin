@@ -27,6 +27,28 @@ export default function Docs() {
           files regardless of their modification status.
         </p>
         <p style={{ marginTop: 12 }}>
+          <b>Upload Mode</b>: Use the "Upload Mode" selector to choose between
+          uploading a single folder or multiple individual files:
+        </p>
+        <ul
+          style={{
+            marginTop: 6,
+            marginBottom: 12,
+            color: "var(--framer-color-text-secondary)",
+          }}
+        >
+          <li>
+            <b>1. Folder mode (default)</b>: Select a single folder at a time
+            via the file picker. Drag and drop also works with multiple folders.
+          </li>
+          <li>
+            <b>2. Files mode</b>: Select multiple individual <code>.tsx</code>{" "}
+            files at a time via the file picker. Drag and drop supports multiple
+            files, multiple folders, or a mix of both.
+          </li>
+        </ul>
+
+        <p style={{ marginTop: 12 }}>
           When you select or drop a folder into the drop zone (e.g., a folder
           named "framer-comps"), the behavior depends on the "Unpack to root"
           setting above the upload panel:

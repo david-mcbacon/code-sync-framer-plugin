@@ -38,17 +38,23 @@ export const traverseFileTree = async (
   path: string,
   files: File[]
 ): Promise<void> => {
-  return new Promise((resolve) => {
+  return new Promise((resolve, reject) => {
     if (item.isFile) {
-      item.file((file: File) => {
-        // Preserve the relative path
-        Object.defineProperty(file, "webkitRelativePath", {
-          value: path + file.name,
-          writable: false,
-        });
-        files.push(file);
-        resolve();
-      });
+      item.file(
+        (file: File) => {
+          // Preserve the relative path
+          Object.defineProperty(file, "webkitRelativePath", {
+            value: path + file.name,
+            writable: false,
+          });
+          files.push(file);
+          resolve();
+        },
+        (error: Error) => {
+          console.error("Error reading file:", error);
+          reject(error);
+        }
+      );
     } else if (item.isDirectory) {
       const dirReader = item.createReader();
       dirReader.readEntries(async (entries: any[]) => {
@@ -57,6 +63,9 @@ export const traverseFileTree = async (
         }
         resolve();
       });
+    } else {
+      // Neither file nor directory, resolve immediately
+      resolve();
     }
   });
 };
