@@ -28,10 +28,27 @@ export default function Docs() {
         </p>
         <p style={{ marginTop: 12 }}>
           When you select or drop a folder into the drop zone (e.g., a folder
-          named "framer-comps"), the plugin will not create a folder with that
-          name in Framer. Instead, it unpacks all contents from the selected
-          folder directly to the root of your Framer project.
+          named "framer-comps"), the behavior depends on the "Unpack to root"
+          setting above the upload panel:
         </p>
+        <ul
+          style={{
+            marginTop: 6,
+            marginBottom: 12,
+            color: "var(--framer-color-text-secondary)",
+          }}
+        >
+          <li>
+            <b>1. When checked (default)</b>: Files are unpacked directly to the
+            root of your Framer project, without creating a folder with the
+            uploaded folder's name.
+          </li>
+          <li>
+            <b>2. When unchecked</b>: A folder with the same name as the
+            uploaded folder is created in Framer, and all files are placed
+            inside it, preserving the original folder structure.
+          </li>
+        </ul>
       </div>
 
       {/* Environment & Configuration */}
