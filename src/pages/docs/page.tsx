@@ -121,7 +121,7 @@ export default function Docs() {
   ],
   "ignoredFiles": ["./Mock/Use_current_location.tsx"],
   "stringReplacements": [
-    { "find": "(api.tasks.get)", "replace": "(\"tasks:get\")" }
+    { "find": "(api.tasks.get)", "replace": "("tasks:get")" }
   ]
 }`}</code>
           </pre>
@@ -151,6 +151,27 @@ export default function Docs() {
               contents. Use plain strings for literal matches or regex syntax
               like
               <code>/foo/gi</code> for advanced patterns.
+            </li>
+            <li>
+              <b>4. Relative imports</b>: automatically ensures that all
+              relative imports (starting with <code>./</code> or{" "}
+              <code>../</code>) end with the <code>.tsx</code> extension, as
+              required by the Framer environment.
+            </li>
+            <li>
+              <b>5. Configuration merging</b>: UI settings and config file rules
+              are merged together. Config file settings take precedence over UI
+              settings when conflicts occur.
+            </li>
+            <li>
+              <b>6. Upload process</b>: Files are created with placeholder
+              content first, then updated with the actual transformed content to
+              ensure reliable uploads.
+            </li>
+            <li>
+              <b>7. Error handling</b>: If an upload fails, check the browser
+              console for detailed error messages. Common issues include
+              permission problems or invalid file content.
             </li>
             <li>
               Only <code>.tsx</code> files are uploaded.
