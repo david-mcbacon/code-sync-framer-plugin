@@ -1,8 +1,8 @@
 import { framer } from "framer-plugin";
 import "./App.css";
-import FolderUploadPage from "./pages/folder-upload/page";
 import { useState } from "react";
-import Docs from "./pages/docs/page";
+import FolderUploadPage from "./pages/folder-upload/page";
+import DocsPage from "./pages/docs/page";
 
 framer.showUI({
   position: "top left",
@@ -49,7 +49,7 @@ export function App() {
       </div>
       <div style={{ height: "100%", width: "100%", overflowY: "auto" }}>
         {activeTab === "upload" && <FolderUploadPage />}
-        {activeTab === "docs" && <Docs />}
+        {activeTab === "docs" && <DocsPage />}
       </div>
     </main>
   );

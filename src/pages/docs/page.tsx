@@ -1,4 +1,4 @@
-export default function Docs() {
+export default function DocsPage() {
   return (
     <div
       style={{

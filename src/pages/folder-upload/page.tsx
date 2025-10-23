@@ -203,7 +203,7 @@ export default function FolderUploadPage() {
         style={{
           fontSize: "11px",
           lineHeight: "1.3",
-          padding: "10px 5px 0px 5px",
+          padding: "10px 10px 0px 10px",
           color: "var(--framer-color-text-tertiary)",
           textAlign: "center",
         }}
