@@ -199,6 +199,27 @@ export default function FolderUploadPage() {
           </div>
         </div>
       </div>
+      <p
+        style={{
+          fontSize: "11px",
+          lineHeight: "1.3",
+          padding: "10px 5px 0px 5px",
+          color: "var(--framer-color-text-tertiary)",
+          textAlign: "center",
+        }}
+      >
+        It&apos;s open source! Jump into the
+        <a
+          href="https://github.com/david-mcbacon/code-sync-framer-plugin"
+          style={{
+            color: "var(--color-accent)",
+          }}
+        >
+          {" "}
+          GitHub repo{" "}
+        </a>
+        and help make it even better.
+      </p>
     </div>
   );
 }

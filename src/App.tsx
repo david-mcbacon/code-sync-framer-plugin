@@ -6,8 +6,8 @@ import Docs from "./pages/docs/page";
 
 framer.showUI({
   position: "top left",
-  width: 300,
-  height: 420,
+  width: 320,
+  height: 450,
 });
 
 export function App() {
