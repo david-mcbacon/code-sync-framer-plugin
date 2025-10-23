@@ -2,7 +2,7 @@
 
 **Upload your `.tsx` files directly to Framer — automatically transformed, structured, and synced for efficient development.**
 
-This is an **open-source Framer plugin**, available in the [Framer Marketplace](https://www.framer.com/marketplace/plugins/code-sync) under my creator profile.  
+This is an **open-source Framer plugin**, available in the [Framer Marketplace](https://www.framer.com/marketplace/plugins/code-sync).  
 Every developer’s workflow is different — that’s why this plugin is open source. You can contribute your own desired functionality or improvements.
 
 👉 **Open a PR**, and I’ll review it!  
@@ -10,7 +10,7 @@ Each accepted contribution will be **credited in the plugin changelog** when the
 
 ## 🚀 Overview
 
-Framer Code Sync lets you upload `.tsx` files (or folders of them) directly into your Framer project.  
+Framer Code Sync lets you upload `.tsx` files (or folders of them) directly into your Framer project.
 It supports out-of-the-box file transfers or advanced customization through a config file — perfect for syncing large codebases or automating imports.
 
 - 1:1 file copying by default
@@ -18,6 +18,17 @@ It supports out-of-the-box file transfers or advanced customization through a co
 - Optional config file for custom imports, ignored files, and string replacements
 - Smart re-uploading (only changed files are updated)
 - Environment variable support via `Env.tsx`
+
+## 🛠️ Tech Stack
+
+This Framer plugin is built as a modern React application with the following technologies:
+
+- **React 18** - Component-based UI framework
+- **TypeScript** - Type-safe JavaScript for robust development
+- **Vite** - Fast build tool and development server
+- **Framer Plugin API** - Integration with Framer's plugin system
+- **CSS Styling** - Combination of inline styles and external `App.css` file. Planning to migrate to Tailwind CSS in the future.
+- **ESLint** - Code linting and quality assurance
 
 ## ⚡ Quick Start
 
