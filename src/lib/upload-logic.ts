@@ -230,7 +230,17 @@ export const handleFolderUpload = async (
     const maxModifiedDate = Math.max(
       ...tsxFiles.map((file) => file.lastModified)
     );
-    await framer.setPluginData("lastUploadDate", maxModifiedDate.toString());
+    // await framer.setPluginData("lastUploadDate", maxModifiedDate.toString());
+    await withPermission({
+      permission: "setPluginData",
+      action: async () => {
+        return await framer.setPluginData(
+          "lastUploadDate",
+          maxModifiedDate.toString()
+        );
+      },
+      errorMessage: "Failed to update last upload date",
+    });
 
     console.log(
       `Updated last upload date to: ${new Date(maxModifiedDate).toISOString()}`

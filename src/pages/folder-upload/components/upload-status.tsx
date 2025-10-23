@@ -30,7 +30,7 @@ export default function UploadStatus({
               fontSize: "14px",
             }}
           >
-            {isDragging ? "Drop here" : "Drag or click to browse"}
+            {isDragging ? "Drop here" : "Drag & drop or click to browse"}
           </p>
           <p
             style={{
@@ -39,8 +39,8 @@ export default function UploadStatus({
               fontSize: "12px",
             }}
           >
-            Drag and drop a folder containing .tsx files or drag and drop
-            multiple files.
+            Drag & drop a folder containing .tsx files or drag & drop multiple
+            files.
           </p>
         </>
       );

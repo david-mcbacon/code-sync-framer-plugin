@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { framer } from "framer-plugin";
+import { withPermission } from "../../../lib/permission-utils";
 
 interface UploadSettingsProps {
   envTarget: string;
@@ -40,7 +41,16 @@ export default function UploadSettings({
           setEnvTarget("production");
           if (isMounted) {
             try {
-              await framer.setPluginData("envReplacementTarget", "production");
+              await withPermission({
+                permission: "setPluginData",
+                action: async () => {
+                  return await framer.setPluginData(
+                    "envReplacementTarget",
+                    "production"
+                  );
+                },
+                errorMessage: "Failed to persist default environment selection",
+              });
             } catch (persistError) {
               console.error(
                 "Failed to persist default environment selection",
@@ -79,7 +89,14 @@ export default function UploadSettings({
           setUnpackToRoot(true);
           if (isMounted) {
             try {
-              await framer.setPluginData("unpackToRoot", "true");
+              await withPermission({
+                permission: "setPluginData",
+                action: async () => {
+                  return await framer.setPluginData("unpackToRoot", "true");
+                },
+                errorMessage:
+                  "Failed to persist default unpack to root setting",
+              });
             } catch (persistError) {
               console.error(
                 "Failed to persist default unpack to root setting",
@@ -118,7 +135,13 @@ export default function UploadSettings({
           setUploadMode("folder");
           if (isMounted) {
             try {
-              await framer.setPluginData("uploadMode", "folder");
+              await withPermission({
+                permission: "setPluginData",
+                action: async () => {
+                  return await framer.setPluginData("uploadMode", "folder");
+                },
+                errorMessage: "Failed to persist default upload mode setting",
+              });
             } catch (persistError) {
               console.error(
                 "Failed to persist default upload mode setting",
@@ -150,7 +173,13 @@ export default function UploadSettings({
     setEnvTarget(value);
 
     try {
-      await framer.setPluginData("envReplacementTarget", value);
+      await withPermission({
+        permission: "setPluginData",
+        action: async () => {
+          return await framer.setPluginData("envReplacementTarget", value);
+        },
+        errorMessage: "Failed to save environment selection",
+      });
     } catch (error) {
       console.error("Failed to save environment selection", error);
     }
@@ -160,7 +189,13 @@ export default function UploadSettings({
     setUnpackToRoot(checked);
 
     try {
-      await framer.setPluginData("unpackToRoot", checked.toString());
+      await withPermission({
+        permission: "setPluginData",
+        action: async () => {
+          return await framer.setPluginData("unpackToRoot", checked.toString());
+        },
+        errorMessage: "Failed to save unpack to root setting",
+      });
     } catch (error) {
       console.error("Failed to save unpack to root setting", error);
     }
@@ -173,7 +208,13 @@ export default function UploadSettings({
     setUploadMode(value);
 
     try {
-      await framer.setPluginData("uploadMode", value);
+      await withPermission({
+        permission: "setPluginData",
+        action: async () => {
+          return await framer.setPluginData("uploadMode", value);
+        },
+        errorMessage: "Failed to save upload mode setting",
+      });
     } catch (error) {
       console.error("Failed to save upload mode setting", error);
     }
