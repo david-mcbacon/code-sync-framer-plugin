@@ -3,7 +3,6 @@ export default function Docs() {
     <div
       style={{
         paddingTop: "10px",
-        paddingBottom: "40px",
         height: "100%",
         display: "flex",
         flexDirection: "column",
@@ -91,7 +90,7 @@ export default function Docs() {
             style={{
               fontWeight: 600,
               marginBottom: 12,
-              color: "var(--framer-color-tint)",
+              color: "var(--color-accent)",
               fontSize: 11,
             }}
           >
@@ -198,7 +197,7 @@ export default function Docs() {
             style={{
               fontWeight: 600,
               marginBottom: 12,
-              color: "var(--framer-color-tint)",
+              color: "var(--color-accent)",
               fontSize: 11,
             }}
           >

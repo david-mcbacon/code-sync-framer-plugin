@@ -9,7 +9,7 @@ import UploadStatus from "./components/upload-status";
 import { UploadState } from "../../lib/types";
 
 export default function FolderUploadPage() {
-  const [uploadState, setUploadState] = useState<UploadState>("no-changes");
+  const [uploadState, setUploadState] = useState<UploadState>("idle");
   const [uploadedCount, setUploadedCount] = useState(0);
   const [totalFiles, setTotalFiles] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
@@ -119,15 +119,15 @@ export default function FolderUploadPage() {
           padding: "40px 20px",
           height: "86%",
           border: isDragging
-            ? "2px dashed var(--framer-color-tint)"
+            ? "2px dashed var(--color-accent)"
             : uploadState === "error"
-            ? "2px dashed #f44336"
-            : uploadState === "success"
-            ? "2px dashed #4caf50"
+            ? "2px dashed var(--color-error)"
+            : uploadState === "success" || uploadState === "no-changes"
+            ? "2px dashed var(--color-success)"
             : "2px dashed var(--framer-color-bg-tertiary)",
           borderRadius: "8px",
           backgroundColor: isDragging
-            ? "rgba(0, 123, 255, 0.05)"
+            ? "rgba(240, 89, 26, 0.05)"
             : uploadState === "loading"
             ? "transparent"
             : "transparent",
@@ -174,15 +174,6 @@ export default function FolderUploadPage() {
           />
         </div>
       </div>
-
-      <style>
-        {`
-          @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-          }
-        `}
-      </style>
     </div>
   );
 }

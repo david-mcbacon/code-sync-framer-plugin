@@ -30,6 +30,8 @@ export function App() {
           gap: 0,
           width: "100%",
           height: "fit-content",
+          paddingBottom: "10px",
+          backgroundColor: "var(--framer-color-bg)",
         }}
       >
         <div
@@ -45,7 +47,7 @@ export function App() {
           Docs
         </div>
       </div>
-      <div style={{ height: "100%", width: "100%" }}>
+      <div style={{ height: "100%", width: "100%", overflowY: "auto" }}>
         {activeTab === "upload" && <FolderUploadPage />}
         {activeTab === "docs" && <Docs />}
       </div>

@@ -107,7 +107,7 @@ export default function UploadSettings({
           style={{
             width: "100px",
             padding: "4px 8px",
-            borderRadius: "4px",
+            borderRadius: "8px",
             border: "1px solid var(--framer-color-bg-tertiary)",
             backgroundColor: "rgba(255,255,255,0.05)",
             color: "var(--framer-color-text)",

@@ -24,7 +24,7 @@ export default function UploadStatus({
             style={{
               margin: "0",
               color: isDragging
-                ? "var(--framer-color-tint)"
+                ? "var(--color-accent)"
                 : "var(--framer-color-text-secondary)",
               fontWeight: "500",
               fontSize: "14px",
@@ -59,15 +59,14 @@ export default function UploadStatus({
               style={{
                 width: "16px",
                 height: "16px",
-                border: "2px solid var(--framer-color-tint)",
-                borderTop: "2px solid transparent",
+                borderBottom: "2px solid var(--color-accent)",
+                borderRight: "2px solid var(--color-accent)",
+
                 borderRadius: "50%",
                 animation: "spin 1s linear infinite",
               }}
             />
-            <span
-              style={{ color: "var(--framer-color-tint)", fontWeight: "500" }}
-            >
+            <span style={{ color: "var(--color-accent)", fontWeight: "500" }}>
               Uploading files... {uploadedCount}/{totalFiles}
             </span>
           </div>
@@ -75,19 +74,14 @@ export default function UploadStatus({
           <div
             style={{
               height: "5px",
-              // backgroundColor: "var(--framer-color-tint)",
-              background: `linear-gradient(to right, var(--framer-color-tint) ${
+              background: `linear-gradient(to right, var(--color-accent) ${
                 (uploadedCount / totalFiles) * 100
               }%, var(--framer-color-text-tertiary) ${
                 (uploadedCount / totalFiles) * 100
               }%)`,
               borderRadius: "5px",
               border: "1px solid var(--framer-color-text-tertiary)",
-              // width: `${
-              //   totalFiles > 0 ? (uploadedCount / totalFiles) * 100 : 0
-              // }%`,
               width: "150px",
-              transition: "width 0.3s ease",
             }}
           ></div>
         </div>
@@ -104,14 +98,14 @@ export default function UploadStatus({
         >
           <p
             style={{
-              color: "#4caf50",
+              color: "var(--color-success)",
               fontSize: "24px",
               fontWeight: "bold",
             }}
           >
             ✓
           </p>
-          <p style={{ color: "#4caf50", fontWeight: "500" }}>
+          <p style={{ color: "var(--color-success)", fontWeight: "500" }}>
             Successfully uploaded {uploadedCount} files to Framer!
           </p>
         </div>
@@ -135,7 +129,7 @@ export default function UploadStatus({
               gap: "5px",
             }}
           >
-            <p style={{ color: "#f44336", fontWeight: "500" }}>
+            <p style={{ color: "var(--color-error)", fontWeight: "500" }}>
               Upload failed. Please try again.
             </p>
           </div>
@@ -174,16 +168,14 @@ export default function UploadStatus({
         >
           <span
             style={{
-              color: "var(--framer-color-tint)",
+              color: "var(--color-success)",
               fontSize: "18px",
               fontWeight: "bold",
             }}
           >
             ✓
           </span>
-          <span
-            style={{ color: "var(--framer-color-tint)", fontWeight: "500" }}
-          >
+          <span style={{ color: "var(--color-success)", fontWeight: "500" }}>
             All files are up to date! No changes detected since last upload.
           </span>
         </div>
