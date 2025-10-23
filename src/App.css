@@ -1,5 +1,5 @@
 :root {
-    --color-accent: #f0591a;
+    --color-accent: rgb(240, 89, 26);
     --color-success: #4caf50;
     --color-error: #f44336;
 }
@@ -14,6 +14,17 @@ input:focus, input:active, select:focus, select:active {
 input[type="checkbox"]:checked {
     background-color: var(--color-accent) !important;
     border-color: var(--color-accent) !important;
+}
+
+li {
+    color: var(--framer-color-text-secondary);
+}
+
+code.one-liner {
+    background-color: rgba(240, 89, 26, 0.2) !important;
+    color: var(--color-accent) !important;
+    padding: 1px 4px 1px 4px !important;
+    border-radius: 4px !important;
 }
 
 .tab-left {

@@ -10,130 +10,102 @@ export default function Docs() {
         color: "var(--framer-color-text)",
       }}
     >
-      {/* Getting Started */}
-      <div style={{ marginBottom: 16 }}>
-        <h4 style={{ marginBottom: 6 }}>Getting Started</h4>
+      {/* Overview */}
+      <div style={{ marginBottom: 20 }}>
         <p>
-          This plugin works out of the box without any configuration files.
-          Without config files, it creates 1:1 copies of your code files as they
-          are. With a config file and environment file, you can enhance how you
-          deploy to Framer by customizing imports, ignoring files, and
-          performing string replacements.
+          Upload your <code className="one-liner">.tsx</code> files directly to
+          Framer with automatic transformations. Works out of the box with 1:1
+          file copying, or use a config file to customize imports, ignore files,
+          and apply string replacements.
         </p>
-        <p style={{ marginTop: 12 }}>
-          On consecutive uploads, the plugin only updates files that have been
-          modified since the last upload for efficiency. You can check the
-          "Overwrite all files" option to force a complete re-upload of all
-          files regardless of their modification status.
-        </p>
-        <p style={{ marginTop: 12 }}>
-          <b>Upload Mode</b>: Use the "Upload Mode" selector to choose between
-          uploading a single folder or multiple individual files:
-        </p>
-        <ul
-          style={{
-            marginTop: 6,
-            marginBottom: 12,
-            color: "var(--framer-color-text-secondary)",
-          }}
-        >
-          <li>
-            <b>1. Folder mode (default)</b>: Select a single folder at a time
-            via the file picker. Drag and drop also works with multiple folders.
-          </li>
-          <li>
-            <b>2. Files mode</b>: Select multiple individual <code>.tsx</code>{" "}
-            files at a time via the file picker. Drag and drop supports multiple
-            files, multiple folders, or a mix of both.
-          </li>
-        </ul>
+      </div>
 
-        <p style={{ marginTop: 12 }}>
-          When you select or drop a folder into the drop zone (e.g., a folder
-          named "framer-comps"), the behavior depends on the "Unpack to root"
-          setting above the upload panel:
-        </p>
-        <ul
-          style={{
-            marginTop: 6,
-            marginBottom: 12,
-            color: "var(--framer-color-text-secondary)",
-          }}
-        >
+      {/* Quick Start */}
+      <div style={{ marginBottom: 20 }}>
+        <h4 style={{ marginBottom: 8 }}>Quick Start</h4>
+        <ol style={{ marginTop: 6, marginBottom: 12 }}>
           <li>
-            <b>1. When checked (default)</b>: Files are unpacked directly to the
-            root of your Framer project, without creating a folder with the
-            uploaded folder's name.
+            • Select your upload mode (folder or individual files) above the
+            upload panel
           </li>
           <li>
-            <b>2. When unchecked</b>: A folder with the same name as the
-            uploaded folder is created in Framer, and all files are placed
-            inside it, preserving the original folder structure.
+            • Choose an environment if you have an{" "}
+            <code className="one-liner">Env.tsx</code> file
+          </li>
+          <li>• Drag and drop files or folders, or use the file picker</li>
+          <li>
+            • On future uploads, only modified files are re-uploaded for
+            efficiency. Check "Overwrite all files" to force a complete
+            re-upload.
+          </li>
+        </ol>
+      </div>
+
+      {/* Upload Modes */}
+      <div style={{ marginBottom: 20 }}>
+        <h4 style={{ marginBottom: 8 }}>Upload Modes</h4>
+        <ul style={{ marginTop: 6, marginBottom: 12 }}>
+          <li>
+            • <b>Folder mode (default)</b>: Select a folder via file picker or
+            drag & drop. All <code className="one-liner">.tsx</code> files
+            within are uploaded.
+          </li>
+          <li>
+            • <b>Files mode</b>: Select multiple{" "}
+            <code className="one-liner">.tsx</code> files directly. Drag & drop
+            supports multiple files, folders, or a mix of both.
           </li>
         </ul>
       </div>
 
-      {/* Environment & Configuration */}
-      <div style={{ marginBottom: 16 }}>
-        <h4 style={{ marginBottom: 6 }}>Environment & Configuration</h4>
-        <p>
-          Use the environment selector on the upload page above the upload panel
-          to choose which env should replace <code>ENV</code> references. The
-          selection persists per project via <code>framer.setPluginData</code>{" "}
-          so collaborators share the same target. You can still add a config
-          file at the root of the uploaded folder (next to your source files):
+      {/* Unpack to Root */}
+      <div style={{ marginBottom: 20 }}>
+        <h4 style={{ marginBottom: 8 }}>Unpack to Root</h4>
+        <p style={{ marginBottom: 8 }}>
+          Controls how files are placed in your Framer project:
         </p>
-
-        <p>
-          <code
-            style={{
-              backgroundColor: "var(--framer-color-bg-secondary)",
-              padding: "2px 4px",
-              borderRadius: 4,
-            }}
-          >
-            framer-code-sync.config.json
-          </code>{" "}
-          or
-          <code
-            style={{
-              backgroundColor: "var(--framer-color-bg-secondary)",
-              padding: "2px 4px",
-              borderRadius: 4,
-            }}
-          >
-            {" "}
-            framer-code-sync.config.jsonc
-          </code>
-        </p>
-        <p style={{ marginTop: 6 }}>
-          JSONC allows comments; both are supported.
-        </p>
+        <ul style={{ marginTop: 6, marginBottom: 0 }}>
+          <li>
+            • <b>Checked (default)</b>: Files unpack directly to the root,
+            without creating a folder
+          </li>
+          <li>
+            • <b>Unchecked</b>: Creates a folder matching the uploaded folder
+            name and preserves the internal structure
+          </li>
+        </ul>
       </div>
 
-      {/* Config Example */}
-      <div style={{ marginBottom: 16 }}>
-        <h4 style={{ marginBottom: 6 }}>Config Example</h4>
+      {/* Configuration */}
+      <div style={{ marginBottom: 20 }}>
+        <h4 style={{ marginBottom: 8 }}>Configuration</h4>
+        <p style={{ marginBottom: 8 }}>
+          Create a{" "}
+          <code className="one-liner">framer-code-sync.config.json</code> (or{" "}
+          <code className="one-liner">framer-code-sync.config.jsonc</code>) at
+          the root of your uploaded folder to customize the upload process.
+          JSONC allows comments. UI settings and config file rules merge
+          together, with config file taking precedence.
+        </p>
+
         <div
           style={{
             padding: 12,
             backgroundColor: "var(--framer-color-bg-secondary)",
             borderRadius: 6,
-            height: "fit-content",
-            display: "flex",
-            flexDirection: "column",
+            marginTop: 12,
             marginBottom: 12,
           }}
         >
           <p
             style={{
               fontWeight: 600,
-              marginBottom: 12,
+              marginBottom: 10,
               color: "var(--color-accent)",
               fontSize: 11,
             }}
           >
-            framer-code-sync.config.json
+            framer-code-sync.config.json (example)
           </p>
           <pre
             style={{
@@ -141,7 +113,6 @@ export default function Docs() {
               whiteSpace: "pre",
               fontSize: 10,
               lineHeight: 1.5,
-              flex: 1,
               overflow: "auto",
             }}
           >
@@ -153,94 +124,77 @@ export default function Docs() {
       "replace": "./Bundles/Stripe_bundle.tsx"
     },
     {
-      "find": "./Mock/Use_current_location.tsx",
-      "replace": "https://framer.com/m/UseCurrentLocation-oZyA.js@1l8XdClJld0xwptzsD73"
+      "find": "./mock/helpers",
+      "replace": "https://example.com/helpers.js"
     }
   ],
-  "ignoredFiles": ["./Mock/Use_current_location.tsx"],
+  "ignoredFiles": ["./internal/mock.tsx"],
   "stringReplacements": [
-    { "find": "(api.tasks.get)", "replace": "("tasks:get")" }
+    { "find": "process.env.API_URL", "replace": "\"https://api.example.com\"" }
   ]
 }`}</code>
           </pre>
         </div>
-        {/* Notes */}
+
         <div>
           <ul
             style={{
-              // color: "var(--framer-color-text)",
               display: "flex",
               flexDirection: "column",
-              gap: 6,
+              gap: 8,
             }}
           >
             <li>
-              <b>1. importReplacements</b>: replaces module specifiers (e.g.
-              "@x/pkg") with either a <b>relative</b> path to your local bundle
-              or a <b>URL</b> for each uploaded file. For example:
+              • <b>importReplacements</b>: Replace module specifiers with a
+              relative path (e.g.,{" "}
+              <code className="one-liner">./Bundles/Stripe.tsx</code>) or a
+              Framer URL
             </li>
             <li>
-              <b>2. ignoredFiles</b>: entries can be a filename (e.g.
-              "Cart.tsx") or a path from the uploaded root (e.g.
-              "hooks/Cart.tsx"). Ignored files are not uploaded.
+              • <b>ignoredFiles</b>: Specify filenames (e.g.,{" "}
+              <code className="one-liner">mock.tsx</code>) or paths (e.g.,{" "}
+              <code className="one-liner">internal/mock.tsx</code>) to exclude
+              from upload
             </li>
             <li>
-              <b>3. stringReplacements</b>: performs simple find/replace on file
-              contents. Use plain strings for literal matches or regex syntax
-              like
-              <code>/foo/gi</code> for advanced patterns.
-            </li>
-            <li>
-              <b>4. Relative imports</b>: automatically ensures that all
-              relative imports (starting with <code>./</code> or{" "}
-              <code>../</code>) end with the <code>.tsx</code> extension, as
-              required by the Framer environment.
-            </li>
-            <li>
-              <b>5. Configuration merging</b>: UI settings and config file rules
-              are merged together. Config file settings take precedence over UI
-              settings when conflicts occur.
-            </li>
-            <li>
-              <b>6. Upload process</b>: Files are created with placeholder
-              content first, then updated with the actual transformed content to
-              ensure reliable uploads.
-            </li>
-            <li>
-              <b>7. Error handling</b>: If an upload fails, check the browser
-              console for detailed error messages. Common issues include
-              permission problems or invalid file content.
-            </li>
-            <li>
-              Only <code>.tsx</code> files are uploaded.
+              • <b>stringReplacements</b>: Find and replace text in files. Use
+              plain strings for literal matches or regex syntax (e.g.,{" "}
+              <code className="one-liner">/pattern/gi</code>) for advanced
+              patterns
             </li>
           </ul>
         </div>
       </div>
 
-      {/* ENV Example */}
-      <div style={{ marginBottom: 16 }}>
-        <h4 style={{ marginBottom: 6 }}>Env Example</h4>
+      {/* Environment Variables */}
+      <div style={{ marginBottom: 20 }}>
+        <h4 style={{ marginBottom: 8 }}>Environment Variables</h4>
+        <p style={{ marginBottom: 8 }}>
+          Create an <code className="one-liner">Env.tsx</code> file in your
+          upload to define environment-specific values. The plugin replaces{" "}
+          <code className="one-liner">ENV</code> references with the selected
+          environment's values. Your environment selection is saved per project
+          via <code className="one-liner">framer.setPluginData</code>, so
+          collaborators share the same target.
+        </p>
+
         <div
           style={{
-            marginTop: 12,
             padding: 12,
             backgroundColor: "var(--framer-color-bg-secondary)",
             borderRadius: 6,
-            height: "fit-content",
-            display: "flex",
-            flexDirection: "column",
+            marginTop: 12,
           }}
         >
           <p
             style={{
               fontWeight: 600,
-              marginBottom: 12,
+              marginBottom: 10,
               color: "var(--color-accent)",
               fontSize: 11,
             }}
           >
-            Env.tsx
+            Env.tsx (example)
           </p>
           <pre
             style={{
@@ -248,24 +202,79 @@ export default function Docs() {
               whiteSpace: "pre",
               fontSize: 10,
               lineHeight: 1.5,
-              flex: 1,
               overflow: "auto",
             }}
           >
             <code>{`export const ENV = {
   BACKEND_URL: {
-    development: "http://localhost:8787",
-    staging: "https://staging-backend.dev",
-    production: "https://production-backend.dev",
+    development: "http://localhost:3000",
+    staging: "https://staging-api.example.com",
+    production: "https://api.example.com",
   },
   API_KEY: {
-    development: "dev-key",
-    staging: "staging-key",
-    production: "prod-key",
+    development: "dev-key-123",
+    staging: "staging-key-456",
+    production: "prod-key-789",
   }
 };`}</code>
           </pre>
         </div>
+      </div>
+
+      {/* Advanced Features */}
+      <div style={{ marginBottom: 20 }}>
+        <h4 style={{ marginBottom: 8 }}>Advanced Features</h4>
+        <ul
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            gap: 8,
+          }}
+        >
+          <li>
+            • <b>Auto .tsx extensions</b>: Relative imports (
+            <code className="one-liner">./</code> or{" "}
+            <code className="one-liner">../</code>) automatically get{" "}
+            <code className="one-liner">.tsx</code> extensions added as required
+            by Framer
+          </li>
+          <li>
+            • <b>Upload strategy</b>: Files are created with placeholder content
+            first, then updated with actual transformed content for reliability
+          </li>
+          <li>
+            • <b>Only .tsx files</b>: The plugin only uploads{" "}
+            <code className="one-liner">.tsx</code> files; other file types are
+            ignored
+          </li>
+        </ul>
+      </div>
+
+      {/* Troubleshooting */}
+      <div style={{ marginBottom: 16 }}>
+        <h4 style={{ marginBottom: 8 }}>Troubleshooting</h4>
+        <ul
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            gap: 6,
+          }}
+        >
+          <li>
+            • <b>Upload fails</b>: Check the browser console for detailed error
+            messages. Common issues include permission problems or invalid file
+            content.
+          </li>
+          <li>
+            • <b>Config not applied</b>: Ensure{" "}
+            <code className="one-liner">framer-code-sync.config.json</code> is
+            at the root of your uploaded folder
+          </li>
+          <li>
+            • <b>Import errors</b>: Double-check that replacement URLs and local
+            paths are correct
+          </li>
+        </ul>
       </div>
     </div>
   );
