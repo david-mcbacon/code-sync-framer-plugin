@@ -4,6 +4,7 @@ import {
   FileProcessingData,
   EnvReplacementRule,
   StringReplacementRule,
+  UploadState,
 } from "./types";
 import { readFileContent, getUploadedRelativePath } from "./file-processing";
 import {
@@ -22,14 +23,13 @@ import {
   ensureTsxExtensions,
 } from "./string-transforms";
 import { isIgnored } from "./file-utils";
+import { Dispatch, SetStateAction } from "react";
 
 export const handleFolderUpload = async (
   files: FileList | null,
-  setUploadState: (
-    state: "idle" | "loading" | "success" | "error" | "no-changes"
-  ) => void,
-  setTotalFiles: (count: number) => void,
-  setUploadedCount: (count: number) => void,
+  setUploadState: Dispatch<SetStateAction<UploadState>>,
+  setTotalFiles: Dispatch<SetStateAction<number>>,
+  setUploadedCount: Dispatch<SetStateAction<number>>,
   overwriteAll: boolean = false
 ): Promise<void> => {
   if (!files) return;

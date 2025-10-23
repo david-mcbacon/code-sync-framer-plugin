@@ -26,3 +26,10 @@ export type FileProcessingData = {
   existingFile?: FramerCodeFile;
   createdFile?: FramerCodeFile;
 };
+
+export type UploadState =
+  | "idle"
+  | "loading"
+  | "success"
+  | "error"
+  | "no-changes";
