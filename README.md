@@ -1,4 +1,4 @@
-# Framer Code Sync
+# Code Sync - Framer Plugin
 
 **Upload your `.tsx` files directly to Framer — automatically transformed, structured, and synced for efficient development.**
 
@@ -7,8 +7,6 @@ Every developer’s workflow is different — that’s why this plugin is open s
 
 👉 **Open a PR**, and I’ll review it!  
 Each accepted contribution will be **credited in the plugin changelog** when the plugin is updated on the Framer Marketplace.
-
----
 
 ## 🚀 Overview
 
@@ -21,8 +19,6 @@ It supports out-of-the-box file transfers or advanced customization through a co
 - Smart re-uploading (only changed files are updated)
 - Environment variable support via `Env.tsx`
 
----
-
 ## ⚡ Quick Start
 
 1. **Select your upload mode** — folder or individual files
@@ -30,8 +26,6 @@ It supports out-of-the-box file transfers or advanced customization through a co
 3. **Drag and drop** your files or use the file picker
 4. On future uploads, **only modified files are re-uploaded**
    - Enable **“Overwrite all files”** to force a complete upload
-
----
 
 ## 📁 Upload Modes
 
@@ -45,16 +39,12 @@ It supports out-of-the-box file transfers or advanced customization through a co
 - Select multiple `.tsx` files directly
 - Supports mixed drag & drop (files and folders)
 
----
-
 ## 🗂️ Unpack to Root
 
 Defines how uploaded files are placed inside your Framer project:
 
 - ✅ **Checked (default)** — Files unpack directly to the root
 - ⬜ **Unchecked** — Creates a folder matching your uploaded folder’s name, preserving its internal structure
-
----
 
 ## ⚙️ Configuration
 
@@ -67,7 +57,7 @@ You can customize the upload process using a configuration file:
 
 The plugin merges UI settings with your config, giving **priority to the config file**.
 
-### Example
+**Example:**
 
 ```jsonc
 {
@@ -83,19 +73,18 @@ The plugin merges UI settings with your config, giving **priority to the config 
 }
 ```
 
-Configuration Options
-• importReplacements — Replace import paths or modules
-• ignoredFiles — Exclude specific files or directories from upload
-• stringReplacements — Find and replace content (supports plain strings or regex)
+### Configuration Options
 
----
+- `importReplacements` — Replace import paths or modules
+- `ignoredFiles` — Exclude specific files or directories from upload
+- `stringReplacements` — Find and replace content (supports plain strings or regex)
 
-🌍 Environment Variables
+## 🌍 Environment Variables
 
-Add an `Env.tsx` file to your upload to define environment-specific values.
-The plugin replaces ENV references automatically with the selected environment’s values.
+Add an `Env.tsx` file to your upload to define environment-specific values.  
+The plugin replaces `ENV` references automatically with the selected environment’s values.
 
-Example:
+**Example:**
 
 ```tsx
 export const ENV = {
@@ -112,42 +101,32 @@ export const ENV = {
 };
 ```
 
-Your selected environment is stored per project via framer.setPluginData, so collaborators share the same target.
+Your selected environment is stored per project via `framer.setPluginData`, so collaborators share the same target.
 
----
+## ⚙️ Advanced Features
 
-⚙️ Advanced Features
-• Auto .tsx extensions — Automatically adds .tsx to relative imports
-• Reliable upload strategy — Files are created with placeholders, then updated with transformed content
-• Strict .tsx handling — Only .tsx files are uploaded; all others are ignored
+- `Auto .tsx extensions` — Automatically adds .tsx to relative imports
+- `Reliable upload strategy` — Files are created with placeholders, then updated with transformed content
+- `Strict .tsx handling` — Only .tsx files are uploaded; all others are ignored
 
----
+## 🧰 Troubleshooting
 
-🧰 Troubleshooting
-• Upload fails — Check the browser console for detailed error messages
-• Config not applied — Ensure framer-code-sync.config.json is at the root of your uploaded folder
-• Import errors — Verify that replacement URLs and paths are correct
+- `Upload fails` — Check the browser console for detailed error messages
+- `Config not applied` — Ensure `framer-code-sync.config.json` is at the root of your uploaded folder
+- `Import errors` — Verify that replacement URLs and paths are correct
 
----
-
-🤝 Contributing
-
-It’s open source! Jump into the GitHub repo and help make it even better.
+## 🤝 Contributing
 
 Every developer’s needs are different — that’s why this plugin is open source.
 If there’s a feature you’d like to see, feel free to open a PR with your changes.
 Once your PR is merged and the plugin is updated, you’ll be credited in the Framer plugin changelog for your contribution.
 
----
+## 🪄 License
 
-🪄 License
+- MIT License © David McBacon
+- See [`LICENSE`](./LICENCE) for details.
 
-MIT License © David McBacon
-See LICENSE for details.
+## 🧡 Author
 
----
-
-🧡 Author
-
-Developed by [David McBacon](https://github.com/david-mcbacon)
-Released on the [Framer Marketplace](https://www.framer.com/marketplace/plugins/code-sync)
+- Developed by [David McBacon](https://github.com/david-mcbacon)
+- Released on the [Framer Marketplace](https://www.framer.com/marketplace/plugins/code-sync)
