@@ -29,7 +29,7 @@ export const loadConfigFromUpload = async (
 const findConfigFile = (files: File[]): File | undefined => {
   // Treat uploaded folder's first segment as root, like code files
   return files.find((file) => {
-    const relativeFromRoot = getUploadedRelativePath(file);
+    const relativeFromRoot = getUploadedRelativePath(file, true);
     return CONFIG_CANDIDATE_NAMES.includes(relativeFromRoot);
   });
 };

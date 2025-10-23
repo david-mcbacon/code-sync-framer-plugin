@@ -8,9 +8,19 @@ export const readFileContent = (file: File): Promise<string> => {
 };
 
 // Helper: compute relative path from uploaded folder root
-export const getUploadedRelativePath = (file: File): string => {
+export const getUploadedRelativePath = (
+  file: File,
+  unpackToRoot: boolean = true
+): string => {
   const withRel = file as File & { webkitRelativePath?: string };
   const fullPath = withRel.webkitRelativePath || file.name;
   const pathParts = fullPath.split("/");
-  return pathParts.length > 1 ? pathParts.slice(1).join("/") : pathParts[0];
+
+  if (unpackToRoot) {
+    // Unpack to root: remove the first directory level
+    return pathParts.length > 1 ? pathParts.slice(1).join("/") : pathParts[0];
+  } else {
+    // Keep folder structure: keep the first directory level
+    return fullPath;
+  }
 };

@@ -30,7 +30,8 @@ export const handleFolderUpload = async (
   setUploadState: Dispatch<SetStateAction<UploadState>>,
   setTotalFiles: Dispatch<SetStateAction<number>>,
   setUploadedCount: Dispatch<SetStateAction<number>>,
-  overwriteAll: boolean = false
+  overwriteAll: boolean = false,
+  unpackToRoot: boolean = true
 ): Promise<void> => {
   if (!files) return;
 
@@ -127,7 +128,7 @@ export const handleFolderUpload = async (
 
     for (const file of tsxFiles) {
       try {
-        const framerPath = getUploadedRelativePath(file);
+        const framerPath = getUploadedRelativePath(file, unpackToRoot);
 
         // Skip ignored files (match by filename or relative path)
         if (isIgnored(framerPath, mergedIgnored)) {

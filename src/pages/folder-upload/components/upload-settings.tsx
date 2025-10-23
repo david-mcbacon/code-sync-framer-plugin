@@ -6,6 +6,8 @@ interface UploadSettingsProps {
   setEnvTarget: (value: string) => void;
   overwriteAll: boolean;
   setOverwriteAll: (value: boolean) => void;
+  unpackToRoot: boolean;
+  setUnpackToRoot: (value: boolean) => void;
 }
 
 export default function UploadSettings({
@@ -13,8 +15,11 @@ export default function UploadSettings({
   setEnvTarget,
   overwriteAll,
   setOverwriteAll,
+  unpackToRoot,
+  setUnpackToRoot,
 }: UploadSettingsProps) {
   const [isLoadingEnv, setIsLoadingEnv] = useState(true);
+  const [isLoadingUnpack, setIsLoadingUnpack] = useState(true);
 
   useEffect(() => {
     let isMounted = true;
@@ -55,6 +60,45 @@ export default function UploadSettings({
     };
   }, [setEnvTarget]);
 
+  useEffect(() => {
+    let isMounted = true;
+
+    const loadUnpackToRoot = async () => {
+      try {
+        const value = await framer.getPluginData("unpackToRoot");
+        if (!isMounted) return;
+        const normalized = value?.trim();
+        if (normalized === "true" || normalized === "false") {
+          setUnpackToRoot(normalized === "true");
+        } else {
+          setUnpackToRoot(true);
+          if (isMounted) {
+            try {
+              await framer.setPluginData("unpackToRoot", "true");
+            } catch (persistError) {
+              console.error(
+                "Failed to persist default unpack to root setting",
+                persistError
+              );
+            }
+          }
+        }
+      } catch (error) {
+        console.error("Failed to load unpack to root setting", error);
+      } finally {
+        if (isMounted) {
+          setIsLoadingUnpack(false);
+        }
+      }
+    };
+
+    void loadUnpackToRoot();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [setUnpackToRoot]);
+
   const handleEnvChange = async (
     event: React.ChangeEvent<HTMLSelectElement>
   ) => {
@@ -68,24 +112,112 @@ export default function UploadSettings({
     }
   };
 
+  const handleUnpackChange = async (checked: boolean) => {
+    setUnpackToRoot(checked);
+
+    try {
+      await framer.setPluginData("unpackToRoot", checked.toString());
+    } catch (error) {
+      console.error("Failed to save unpack to root setting", error);
+    }
+  };
+
   return (
     <div
       style={{
-        marginBottom: "15px",
+        marginBottom: "10px",
         display: "flex",
-        alignItems: "center",
+        alignItems: "start",
         gap: "10px",
         paddingTop: "4px",
         width: "100%",
+        height: "fit-content",
       }}
     >
+      {/* LEFT SIDE */}
       <div
         style={{
           display: "flex",
-          flexDirection: "row",
-          justifyItems: "center",
-          alignItems: "center",
-          gap: "8px",
+          flexDirection: "column",
+          gap: "12px",
+          width: "100%",
+        }}
+      >
+        {/* Overwrite all files */}
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "8px",
+            width: "100%",
+          }}
+        >
+          <input
+            type="checkbox"
+            id="overwriteAll"
+            checked={overwriteAll}
+            onChange={(e) => setOverwriteAll(e.target.checked)}
+            style={{
+              width: "16px",
+              height: "16px",
+              cursor: "pointer",
+            }}
+          />
+          <label
+            htmlFor="overwriteAll"
+            style={{
+              fontSize: "12px",
+              cursor: "pointer",
+              userSelect: "none",
+              color: "var(--framer-color-text)",
+            }}
+          >
+            Overwrite all files
+          </label>
+        </div>
+
+        {/* Unpack to root */}
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "8px",
+            width: "100%",
+          }}
+        >
+          <input
+            type="checkbox"
+            id="unpackToRoot"
+            checked={unpackToRoot}
+            onChange={(e) => handleUnpackChange(e.target.checked)}
+            disabled={isLoadingUnpack}
+            style={{
+              width: "16px",
+              height: "16px",
+              cursor: isLoadingUnpack ? "wait" : "pointer",
+            }}
+          />
+          <label
+            htmlFor="unpackToRoot"
+            style={{
+              fontSize: "12px",
+              cursor: isLoadingUnpack ? "wait" : "pointer",
+              userSelect: "none",
+              color: "var(--framer-color-text)",
+            }}
+          >
+            Unpack to root
+          </label>
+        </div>
+      </div>
+      {/* RIGHT SIDE */}
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          justifyItems: "start",
+          alignItems: "start",
+          gap: "5px",
           width: "100%",
         }}
       >
@@ -93,11 +225,11 @@ export default function UploadSettings({
           htmlFor="environmentTarget"
           style={{
             fontSize: "12px",
-            color: "var(--framer-color-text)",
+            color: "var(--framer-color-text-secondary)",
             userSelect: "none",
           }}
         >
-          Env
+          Environment
         </label>
         <select
           id="environmentTarget"
@@ -105,13 +237,13 @@ export default function UploadSettings({
           onChange={handleEnvChange}
           disabled={isLoadingEnv}
           style={{
-            width: "100px",
+            width: "100%",
             padding: "4px 8px",
             borderRadius: "8px",
             border: "1px solid var(--framer-color-bg-tertiary)",
             backgroundColor: "rgba(255,255,255,0.05)",
             color: "var(--framer-color-text)",
-            fontSize: "11px",
+            fontSize: "12px",
             cursor: isLoadingEnv ? "wait" : "pointer",
             minHeight: "26px",
           }}
@@ -126,38 +258,6 @@ export default function UploadSettings({
             Production
           </option>
         </select>
-      </div>
-
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          gap: "8px",
-          width: "100%",
-        }}
-      >
-        <input
-          type="checkbox"
-          id="overwriteAll"
-          checked={overwriteAll}
-          onChange={(e) => setOverwriteAll(e.target.checked)}
-          style={{
-            width: "16px",
-            height: "16px",
-            cursor: "pointer",
-          }}
-        />
-        <label
-          htmlFor="overwriteAll"
-          style={{
-            fontSize: "12px",
-            cursor: "pointer",
-            userSelect: "none",
-            color: "var(--framer-color-text)",
-          }}
-        >
-          Overwrite all files
-        </label>
       </div>
     </div>
   );

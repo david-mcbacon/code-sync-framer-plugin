@@ -8,7 +8,8 @@ export const processFiles = async (
   setUploadState: Dispatch<SetStateAction<UploadState>>,
   setTotalFiles: Dispatch<SetStateAction<number>>,
   setUploadedCount: Dispatch<SetStateAction<number>>,
-  overwriteAll: boolean
+  overwriteAll: boolean,
+  unpackToRoot: boolean = true
 ) => {
   if (!files) return;
 
@@ -26,7 +27,8 @@ export const processFiles = async (
     setUploadState,
     setTotalFiles,
     setUploadedCount,
-    overwriteAll
+    overwriteAll,
+    unpackToRoot
   );
 };
 

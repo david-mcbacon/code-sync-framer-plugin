@@ -15,6 +15,7 @@ export default function FolderUploadPage() {
   const [isDragging, setIsDragging] = useState(false);
   const [overwriteAll, setOverwriteAll] = useState(false);
   const [envTarget, setEnvTarget] = useState<string>("production");
+  const [unpackToRoot, setUnpackToRoot] = useState(true);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
@@ -56,7 +57,8 @@ export default function FolderUploadPage() {
       setUploadState,
       setTotalFiles,
       setUploadedCount,
-      overwriteAll
+      overwriteAll,
+      unpackToRoot
     );
   };
 
@@ -74,7 +76,8 @@ export default function FolderUploadPage() {
       setUploadState,
       setTotalFiles,
       setUploadedCount,
-      overwriteAll
+      overwriteAll,
+      unpackToRoot
     );
 
     // Clear the file input after upload attempt
@@ -88,90 +91,95 @@ export default function FolderUploadPage() {
       style={{
         height: "100%",
         width: "100%",
-
         position: "relative",
+        display: "flex",
+        flexDirection: "column",
       }}
     >
-      <input
-        ref={fileInputRef}
-        type="file"
-        // @ts-expect-error - webkitdirectory is not a valid attribute
-        webkitdirectory=""
-        directory=""
-        multiple
-        onChange={handleFileInputChange}
-        style={{ display: "none", height: "100%" }}
-      />
-
       <UploadSettings
         envTarget={envTarget}
         setEnvTarget={setEnvTarget}
         overwriteAll={overwriteAll}
         setOverwriteAll={setOverwriteAll}
+        unpackToRoot={unpackToRoot}
+        setUnpackToRoot={setUnpackToRoot}
       />
-
-      <div
-        onClick={handleClick}
-        onDragOver={handleDragOver}
-        onDragLeave={handleDragLeave}
-        onDrop={handleDrop}
-        style={{
-          padding: "40px 20px",
-          height: "86%",
-          border: isDragging
-            ? "2px dashed var(--color-accent)"
-            : uploadState === "error"
-            ? "2px dashed var(--color-error)"
-            : uploadState === "success" || uploadState === "no-changes"
-            ? "2px dashed var(--color-success)"
-            : "2px dashed var(--framer-color-bg-tertiary)",
-          borderRadius: "8px",
-          backgroundColor: isDragging
-            ? "rgba(240, 89, 26, 0.05)"
-            : uploadState === "loading"
-            ? "transparent"
-            : "transparent",
-          textAlign: "center",
-          cursor: uploadState === "loading" ? "not-allowed" : "pointer",
-          transition: "all 0.2s ease",
-          display: "flex",
-          flexDirection: "column",
-          justifyContent: "center",
-          alignItems: "center",
-          position: "relative",
-        }}
-      >
-        <div
-          style={{
-            position: "absolute",
-            top: "38%",
-            left: "50%",
-            transform: "translate(-50%, -50%)",
-            fontSize: "48px",
-            marginBottom: "10px",
-            opacity: 0.5,
-          }}
-        >
-          📁
-        </div>
+      {/* DROP ZONE */}
+      <div style={{ flex: 1, width: "100%" }}>
+        <input
+          ref={fileInputRef}
+          type="file"
+          // @ts-expect-error - webkitdirectory is not a valid attribute
+          webkitdirectory=""
+          directory=""
+          multiple
+          onChange={handleFileInputChange}
+          style={{ display: "none", height: "100%" }}
+        />
 
         <div
+          onClick={handleClick}
+          onDragOver={handleDragOver}
+          onDragLeave={handleDragLeave}
+          onDrop={handleDrop}
           style={{
-            position: "absolute",
-            top: "62%",
-            left: "50%",
-            transform: "translate(-50%, -50%)",
-            width: "100%",
-            padding: "28px",
+            padding: "40px 20px",
+            height: "100%",
+            border: isDragging
+              ? "2px dashed var(--color-accent)"
+              : uploadState === "error"
+              ? "2px dashed var(--color-error)"
+              : uploadState === "success" || uploadState === "no-changes"
+              ? "2px dashed var(--color-success)"
+              : "2px dashed var(--framer-color-bg-tertiary)",
+            borderRadius: "8px",
+            backgroundColor: isDragging
+              ? "rgba(240, 89, 26, 0.05)"
+              : uploadState === "loading"
+              ? "transparent"
+              : "transparent",
+            textAlign: "center",
+            cursor: uploadState === "loading" ? "not-allowed" : "pointer",
+            transition: "all 0.2s ease",
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "center",
+            alignItems: "center",
+            position: "relative",
           }}
         >
-          <UploadStatus
-            uploadState={uploadState}
-            isDragging={isDragging}
-            uploadedCount={uploadedCount}
-            totalFiles={totalFiles}
-            setUploadState={setUploadState}
-          />
+          <div
+            style={{
+              position: "absolute",
+              top: "38%",
+              left: "50%",
+              transform: "translate(-50%, -50%)",
+              fontSize: "48px",
+              marginBottom: "10px",
+              opacity: 0.5,
+            }}
+          >
+            📁
+          </div>
+
+          <div
+            style={{
+              position: "absolute",
+              top: "62%",
+              left: "50%",
+              transform: "translate(-50%, -50%)",
+              width: "100%",
+              padding: "28px",
+            }}
+          >
+            <UploadStatus
+              uploadState={uploadState}
+              isDragging={isDragging}
+              uploadedCount={uploadedCount}
+              totalFiles={totalFiles}
+              setUploadState={setUploadState}
+            />
+          </div>
         </div>
       </div>
     </div>
