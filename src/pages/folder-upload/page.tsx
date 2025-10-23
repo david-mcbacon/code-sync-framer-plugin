@@ -1,6 +1,6 @@
-import React, { useState, useRef, useEffect } from "react";
-import { framer } from "framer-plugin";
+import React, { useState, useRef } from "react";
 import { handleFolderUpload } from "../../lib/upload-logic";
+import UploadSettings from "./components/upload-settings";
 
 export default function FolderUploadPage() {
   const [uploadState, setUploadState] = useState<
@@ -11,47 +11,7 @@ export default function FolderUploadPage() {
   const [isDragging, setIsDragging] = useState(false);
   const [overwriteAll, setOverwriteAll] = useState(false);
   const [envTarget, setEnvTarget] = useState<string>("production");
-  const [isLoadingEnv, setIsLoadingEnv] = useState(true);
   const fileInputRef = useRef<HTMLInputElement>(null);
-
-  useEffect(() => {
-    let isMounted = true;
-
-    const loadEnvTarget = async () => {
-      try {
-        const value = await framer.getPluginData("envReplacementTarget");
-        if (!isMounted) return;
-        const normalized = value?.trim();
-        if (normalized) {
-          setEnvTarget(normalized);
-        } else {
-          setEnvTarget("production");
-          if (isMounted) {
-            try {
-              await framer.setPluginData("envReplacementTarget", "production");
-            } catch (persistError) {
-              console.error(
-                "Failed to persist default environment selection",
-                persistError
-              );
-            }
-          }
-        }
-      } catch (error) {
-        console.error("Failed to load environment selection", error);
-      } finally {
-        if (isMounted) {
-          setIsLoadingEnv(false);
-        }
-      }
-    };
-
-    void loadEnvTarget();
-
-    return () => {
-      isMounted = false;
-    };
-  }, []);
 
   const processFiles = async (files: FileList | null) => {
     if (!files) return;
@@ -155,19 +115,6 @@ export default function FolderUploadPage() {
         });
       }
     });
-  };
-
-  const handleEnvChange = async (
-    event: React.ChangeEvent<HTMLSelectElement>
-  ) => {
-    const value = event.target.value;
-    setEnvTarget(value);
-
-    try {
-      await framer.setPluginData("envReplacementTarget", value);
-    } catch (error) {
-      console.error("Failed to save environment selection", error);
-    }
   };
 
   // Helper function to create a FileList-like object
@@ -386,97 +333,12 @@ export default function FolderUploadPage() {
         style={{ display: "none", height: "100%" }}
       />
 
-      <div
-        style={{
-          marginBottom: "15px",
-          display: "flex",
-          alignItems: "center",
-          gap: "10px",
-          paddingTop: "4px",
-          width: "100%",
-        }}
-      >
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "row",
-            justifyItems: "center",
-            alignItems: "center",
-            gap: "8px",
-            width: "100%",
-          }}
-        >
-          <label
-            htmlFor="environmentTarget"
-            style={{
-              fontSize: "12px",
-              color: "var(--framer-color-text)",
-              userSelect: "none",
-            }}
-          >
-            Env
-          </label>
-          <select
-            id="environmentTarget"
-            value={envTarget}
-            onChange={handleEnvChange}
-            disabled={isLoadingEnv}
-            style={{
-              width: "100px",
-              padding: "4px 8px",
-              borderRadius: "4px",
-              border: "1px solid var(--framer-color-bg-tertiary)",
-              backgroundColor: "rgba(255,255,255,0.05)",
-              color: "var(--framer-color-text)",
-              fontSize: "11px",
-              cursor: isLoadingEnv ? "wait" : "pointer",
-              minHeight: "26px",
-            }}
-          >
-            <option value="development" style={{ color: "#000" }}>
-              Development
-            </option>
-            <option value="staging" style={{ color: "#000" }}>
-              Staging
-            </option>
-            <option value="production" style={{ color: "#000" }}>
-              Production
-            </option>
-          </select>
-        </div>
-
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: "8px",
-            width: "100%",
-          }}
-        >
-          <input
-            type="checkbox"
-            id="overwriteAll"
-            checked={overwriteAll}
-            onChange={(e) => setOverwriteAll(e.target.checked)}
-            style={{
-              width: "16px",
-              height: "16px",
-              cursor: "pointer",
-            }}
-          />
-          <label
-            htmlFor="overwriteAll"
-            style={{
-              fontSize: "12px",
-              cursor: "pointer",
-              userSelect: "none",
-              color: "var(--framer-color-text)",
-            }}
-          >
-            Overwrite all files
-          </label>
-        </div>
-      </div>
+      <UploadSettings
+        envTarget={envTarget}
+        setEnvTarget={setEnvTarget}
+        overwriteAll={overwriteAll}
+        setOverwriteAll={setOverwriteAll}
+      />
 
       <div
         onClick={handleClick}
