@@ -211,6 +211,8 @@ export default function FolderUploadPage() {
         It&apos;s open source! Jump into the
         <a
           href="https://github.com/david-mcbacon/code-sync-framer-plugin"
+          target="_blank"
+          rel="noopener noreferrer"
           style={{
             color: "var(--color-accent)",
           }}
