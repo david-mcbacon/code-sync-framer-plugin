@@ -101,7 +101,7 @@ export default function DocsPage() {
             style={{
               fontWeight: 600,
               marginBottom: 10,
-              color: "var(--color-accent)",
+              color: "var(--framer-color-tint)",
               fontSize: 11,
             }}
           >
@@ -190,7 +190,7 @@ export default function DocsPage() {
             style={{
               fontWeight: 600,
               marginBottom: 10,
-              color: "var(--color-accent)",
+              color: "var(--framer-color-tint)",
               fontSize: 11,
             }}
           >

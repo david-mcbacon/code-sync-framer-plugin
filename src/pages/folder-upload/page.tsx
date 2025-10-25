@@ -142,7 +142,7 @@ export default function FolderUploadPage() {
             padding: "40px 20px",
             height: "100%",
             border: isDragging
-              ? "2px dashed var(--color-accent)"
+              ? "2px dashed var(--framer-color-tint)"
               : uploadState === "error"
               ? "2px dashed var(--color-error)"
               : uploadState === "success" || uploadState === "no-changes"
@@ -214,7 +214,7 @@ export default function FolderUploadPage() {
           target="_blank"
           rel="noopener noreferrer"
           style={{
-            color: "var(--color-accent)",
+            color: "var(--framer-color-tint)",
           }}
         >
           {" "}
