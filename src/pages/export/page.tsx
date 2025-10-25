@@ -195,7 +195,22 @@ export default function ExportPage() {
 			// Add each code file to the zip
 			for (const codeFile of filesToExport) {
 				const filePath = codeFile.path || codeFile.name;
-				zip.file(filePath, codeFile.content);
+
+				// If a folder is selected, strip the parent folders before the selected folder
+				let zipPath = filePath;
+				if (selectedFolder) {
+					// Get the parent path (everything before the last segment of selectedFolder)
+					const lastSlashIndex = selectedFolder.lastIndexOf("/");
+					const parentPath =
+						lastSlashIndex !== -1 ? selectedFolder.substring(0, lastSlashIndex + 1) : "";
+
+					// Strip the parent path from the file path
+					if (parentPath && filePath.startsWith(parentPath)) {
+						zipPath = filePath.substring(parentPath.length);
+					}
+				}
+
+				zip.file(zipPath, codeFile.content);
 			}
 
 			let name = "framer-code-files";
