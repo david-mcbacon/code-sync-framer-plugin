@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import JSZip from "jszip";
-import { framer, type CodeFile, type MenuItem } from "framer-plugin";
+import { framer, type CodeFile, type MenuItem, type SeparatorMenuItem } from "framer-plugin";
 
 export default function ExportPage() {
 	const [isLoading, setIsLoading] = useState(false);
@@ -93,7 +93,7 @@ export default function ExportPage() {
 									checked: selectedFolder === folderPath,
 									onAction: () => setSelectedFolder(folderPath),
 								},
-								{ type: "separator" as const },
+								{ type: "separator" } as SeparatorMenuItem,
 								...children,
 							]
 						: undefined;
