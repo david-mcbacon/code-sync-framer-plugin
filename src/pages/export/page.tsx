@@ -9,17 +9,30 @@ export default function ExportPage() {
 	const folderButtonRef = useRef<HTMLSelectElement>(null);
 
 	useEffect(() => {
-		loadCodeFiles();
+		// Subscribe to code file changes
+		const unsubscribe = framer.subscribeToCodeFiles((files) => {
+			setCodeFiles([...files]);
+		});
+
+		// Cleanup subscription on unmount
+		return () => {
+			unsubscribe();
+		};
 	}, []);
 
-	const loadCodeFiles = async () => {
-		try {
-			const files = await framer.getCodeFiles();
-			setCodeFiles([...files]);
-		} catch (error) {
-			console.error("Error loading code files:", error);
+	// Clear selected folder if it no longer exists after files change
+	useEffect(() => {
+		if (selectedFolder && codeFiles.length > 0) {
+			const folderStillExists = codeFiles.some((file) => {
+				const path = file.path || file.name;
+				return path.startsWith(`${selectedFolder}/`);
+			});
+
+			if (!folderStillExists) {
+				setSelectedFolder(null);
+			}
 		}
-	};
+	}, [codeFiles, selectedFolder]);
 
 	const buildFolderStructure = (files: CodeFile[]): Map<string, Set<string>> => {
 		const folderMap = new Map<string, Set<string>>();
@@ -73,6 +86,7 @@ export default function ExportPage() {
 				return {
 					label: folderName,
 					secondaryLabel: `${fileCount}`,
+					checked: selectedFolder === folderPath,
 					onAction: children.length === 0 ? () => setSelectedFolder(folderPath) : undefined,
 					submenu: children.length > 0 ? children : undefined,
 				};
@@ -92,6 +106,7 @@ export default function ExportPage() {
 			{
 				label: "All",
 				secondaryLabel: `${codeFiles.length}`,
+				checked: selectedFolder === null,
 				onAction: () => setSelectedFolder(null),
 			},
 			{ type: "separator" },
@@ -184,7 +199,7 @@ export default function ExportPage() {
 	};
 
 	const filteredFiles = getFilteredFiles();
-	const displayText = selectedFolder || "All";
+	const displayText = selectedFolder ? selectedFolder.replaceAll("/", " → ") : "All";
 	const fileCount = filteredFiles.length;
 
 	return (
