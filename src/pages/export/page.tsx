@@ -1,31 +1,148 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import JSZip from "jszip";
-import { framer } from "framer-plugin";
+import { framer, type CodeFile, type MenuItem } from "framer-plugin";
 
 export default function ExportPage() {
 	const [isLoading, setIsLoading] = useState(false);
+	const [selectedFolder, setSelectedFolder] = useState<string | null>(null);
+	const [codeFiles, setCodeFiles] = useState<CodeFile[]>([]);
+	const folderButtonRef = useRef<HTMLSelectElement>(null);
+
+	useEffect(() => {
+		loadCodeFiles();
+	}, []);
+
+	const loadCodeFiles = async () => {
+		try {
+			const files = await framer.getCodeFiles();
+			setCodeFiles([...files]);
+		} catch (error) {
+			console.error("Error loading code files:", error);
+		}
+	};
+
+	const buildFolderStructure = (files: CodeFile[]): Map<string, Set<string>> => {
+		const folderMap = new Map<string, Set<string>>();
+
+		files.forEach((file) => {
+			const path = file.path || file.name;
+			if (path.includes("/")) {
+				const parts = path.split("/");
+				parts.pop(); // Remove filename
+
+				// Build all folder paths
+				let currentPath = "";
+				parts.forEach((part) => {
+					const parentPath = currentPath;
+					currentPath = currentPath ? `${currentPath}/${part}` : part;
+
+					if (!folderMap.has(parentPath)) {
+						folderMap.set(parentPath, new Set());
+					}
+					folderMap.get(parentPath)!.add(currentPath);
+				});
+			}
+		});
+
+		return folderMap;
+	};
+
+	const countFilesInFolder = (folderPath: string): number => {
+		return codeFiles.filter((file) => {
+			const path = file.path || file.name;
+			return path.startsWith(`${folderPath}/`);
+		}).length;
+	};
+
+	const buildMenuItems = (
+		folderMap: Map<string, Set<string>>,
+		parentPath: string = ""
+	): MenuItem[] => {
+		const subfolders = folderMap.get(parentPath);
+		if (!subfolders || subfolders.size === 0) {
+			return [];
+		}
+
+		return Array.from(subfolders)
+			.sort()
+			.map((folderPath) => {
+				const folderName = folderPath.split("/").pop() || folderPath;
+				const children = buildMenuItems(folderMap, folderPath);
+				const fileCount = countFilesInFolder(folderPath);
+
+				return {
+					label: folderName,
+					secondaryLabel: `${fileCount}`,
+					onAction: children.length === 0 ? () => setSelectedFolder(folderPath) : undefined,
+					submenu: children.length > 0 ? children : undefined,
+				};
+			});
+	};
+
+	const showFolderMenu = async (event: React.MouseEvent<HTMLDivElement>) => {
+		event.preventDefault();
+		event.stopPropagation();
+
+		if (!folderButtonRef.current) return;
+
+		const folderMap = buildFolderStructure(codeFiles);
+		const menuItems = buildMenuItems(folderMap);
+
+		const allMenuItems: MenuItem[] = [
+			{
+				label: "All",
+				secondaryLabel: `${codeFiles.length}`,
+				onAction: () => setSelectedFolder(null),
+			},
+			{ type: "separator" },
+			...menuItems,
+		];
+
+		const rect = folderButtonRef.current.getBoundingClientRect();
+
+		await framer.showContextMenu(allMenuItems, {
+			location: {
+				x: rect.left,
+				y: rect.top - 8,
+			},
+			width: rect.width + 8,
+		});
+	};
+
+	const getFilteredFiles = (): CodeFile[] => {
+		if (!selectedFolder) return codeFiles;
+
+		return codeFiles.filter((file) => {
+			const path = file.path || file.name;
+			return path.startsWith(`${selectedFolder}/`);
+		});
+	};
 
 	const handleExport = async () => {
 		setIsLoading(true);
 
 		try {
-			// Get all code files from the Framer project
-			const codeFiles = await framer.getCodeFiles();
+			// Get filtered code files
+			const filesToExport = getFilteredFiles();
 
-			if (codeFiles.length === 0) {
+			if (filesToExport.length === 0) {
 				setIsLoading(false);
-				framer.notify("No code files found in this project.");
+				framer.notify(
+					selectedFolder
+						? `No code files found in folder "${selectedFolder}".`
+						: "No code files found in this project."
+				);
 				return;
 			}
 
-			const fileCount = codeFiles.length;
+			const fileCount = filesToExport.length;
 			const fileWord = fileCount === 1 ? "file" : "files";
 
 			// Create a new JSZip instance
 			const zip = new JSZip();
 
 			// Add each code file to the zip
-			for (const codeFile of codeFiles) {
+			for (const codeFile of filesToExport) {
 				const filePath = codeFile.path || codeFile.name;
 				zip.file(filePath, codeFile.content);
 			}
@@ -66,6 +183,10 @@ export default function ExportPage() {
 		}
 	};
 
+	const filteredFiles = getFilteredFiles();
+	const displayText = selectedFolder || "All";
+	const fileCount = filteredFiles.length;
+
 	return (
 		<div
 			style={{
@@ -76,6 +197,49 @@ export default function ExportPage() {
 				flexDirection: "column",
 			}}
 		>
+			{/* Folder Filter */}
+			<div
+				style={{
+					display: "flex",
+					flexDirection: "column",
+					justifyItems: "start",
+					alignItems: "start",
+					gap: "2px",
+					width: "100%",
+					paddingTop: "4px",
+				}}
+			>
+				<p
+					style={{
+						fontSize: "12px",
+						color: "var(--framer-color-text-secondary)",
+						userSelect: "none",
+					}}
+				>
+					Folder
+				</p>
+				<div onClick={showFolderMenu} style={{ width: "100%", cursor: "pointer" }}>
+					<select
+						id="folder"
+						ref={folderButtonRef}
+						value=""
+						tabIndex={-1}
+						style={{
+							width: "100%",
+							padding: "4px 8px",
+							borderRadius: "8px",
+							border: "1px solid var(--framer-color-bg-tertiary)",
+							backgroundColor: "rgba(255,255,255,0.05)",
+							minHeight: "26px",
+							pointerEvents: "none",
+							userSelect: "none",
+						}}
+					>
+						<option value="">{displayText}</option>
+					</select>
+				</div>
+			</div>
+
 			<div style={{ flex: 1, width: "100%" }}>
 				<div
 					style={{
@@ -118,12 +282,15 @@ export default function ExportPage() {
 							textWrap: "balance",
 						}}
 					>
-						Download all code files in this project as a zip file.
+						{selectedFolder
+							? `Download ${fileCount} ${fileCount === 1 ? "file" : "files"} from "${selectedFolder}" as a zip file.`
+							: "Download all code files in this project as a zip file."}
 					</p>
 					<button
 						className="framer-button-primary"
 						style={{ marginTop: "25px" }}
 						onClick={handleExport}
+						disabled={isLoading || fileCount === 0}
 					>
 						{isLoading ? <div className="framer-spinner" /> : "Export"}
 					</button>
