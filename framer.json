@@ -1,6 +1,6 @@
 {
   "id": "63896a",
   "name": "Code Sync",
-  "modes": ["canvas"],
+  "modes": ["canvas", "code"],
   "icon": "/code-logo.png"
 }
