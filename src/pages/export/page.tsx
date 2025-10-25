@@ -1,9 +1,70 @@
 import { useState } from "react";
-
-type ExportState = "idle" | "loading" | "success" | "error";
+import JSZip from "jszip";
+import { framer } from "framer-plugin";
 
 export default function ExportPage() {
-	const [exportState, setExportState] = useState<ExportState>("idle");
+	const [isLoading, setIsLoading] = useState(false);
+
+	const handleExport = async () => {
+		setIsLoading(true);
+
+		try {
+			// Get all code files from the Framer project
+			const codeFiles = await framer.getCodeFiles();
+
+			if (codeFiles.length === 0) {
+				setIsLoading(false);
+				framer.notify("No code files found in this project.");
+				return;
+			}
+
+			const fileCount = codeFiles.length;
+			const fileWord = fileCount === 1 ? "file" : "files";
+
+			// Create a new JSZip instance
+			const zip = new JSZip();
+
+			// Add each code file to the zip
+			for (const codeFile of codeFiles) {
+				const filePath = codeFile.path || codeFile.name;
+				zip.file(filePath, codeFile.content);
+			}
+
+			let name = "framer-code-files";
+
+			try {
+				const projectInfo = await framer.getProjectInfo();
+				if (projectInfo.name) {
+					name = projectInfo.name;
+				}
+			} catch (error) {
+				console.error("Error getting project info:", error);
+			}
+
+			// Generate the zip file
+			const zipBlob = await zip.generateAsync({ type: "blob" });
+
+			// Create a download link and trigger the download
+			const url = URL.createObjectURL(zipBlob);
+			const a = document.createElement("a");
+			a.href = url;
+			a.download = `${name}.zip`;
+			document.body.appendChild(a);
+			a.click();
+			document.body.removeChild(a);
+			URL.revokeObjectURL(url);
+
+			setIsLoading(false);
+			framer.notify(`Successfully exported ${fileCount} code ${fileWord}!`, { variant: "success" });
+		} catch (error) {
+			console.error("Export failed:", error);
+			setIsLoading(false);
+			framer.notify(`Export failed: ${error instanceof Error ? error.message : "Unknown error"}`, {
+				variant: "error",
+				durationMs: Infinity,
+			});
+		}
+	};
 
 	return (
 		<div
@@ -59,8 +120,12 @@ export default function ExportPage() {
 					>
 						Download all code files in this project as a zip file.
 					</p>
-					<button className="framer-button-primary" style={{ marginTop: "25px" }}>
-						Export
+					<button
+						className="framer-button-primary"
+						style={{ marginTop: "25px" }}
+						onClick={handleExport}
+					>
+						{isLoading ? <div className="framer-spinner" /> : "Export"}
 					</button>
 				</div>
 			</div>
