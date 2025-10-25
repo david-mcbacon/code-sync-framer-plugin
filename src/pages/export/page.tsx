@@ -83,12 +83,27 @@ export default function ExportPage() {
 				const children = buildMenuItems(folderMap, folderPath);
 				const fileCount = countFilesInFolder(folderPath);
 
+				// If this folder has subfolders, add "All" option as first item in submenu
+				const submenu =
+					children.length > 0
+						? [
+								{
+									label: "All",
+									secondaryLabel: `${fileCount}`,
+									checked: selectedFolder === folderPath,
+									onAction: () => setSelectedFolder(folderPath),
+								},
+								{ type: "separator" as const },
+								...children,
+							]
+						: undefined;
+
 				return {
 					label: folderName,
 					secondaryLabel: `${fileCount}`,
 					checked: selectedFolder === folderPath,
 					onAction: children.length === 0 ? () => setSelectedFolder(folderPath) : undefined,
-					submenu: children.length > 0 ? children : undefined,
+					submenu,
 				};
 			});
 	};
@@ -185,13 +200,20 @@ export default function ExportPage() {
 
 			let name = "framer-code-files";
 
-			try {
-				const projectInfo = await framer.getProjectInfo();
-				if (projectInfo.name) {
-					name = projectInfo.name;
+			// If a folder is selected, use the folder name
+			if (selectedFolder) {
+				const folderName = selectedFolder.split("/").pop() || selectedFolder;
+				name = folderName;
+			} else {
+				// Otherwise, use the project name
+				try {
+					const projectInfo = await framer.getProjectInfo();
+					if (projectInfo.name) {
+						name = projectInfo.name;
+					}
+				} catch (error) {
+					console.error("Error getting project info:", error);
 				}
-			} catch (error) {
-				console.error("Error getting project info:", error);
 			}
 
 			// Generate the zip file
@@ -314,16 +336,15 @@ export default function ExportPage() {
 						style={{
 							marginTop: "5px",
 							color: "var(--framer-color-text-tertiary)",
-							fontSize: "12px",
 							textWrap: "balance",
 						}}
 					>
 						{selectedFolder
 							? fileCount === 1
-								? `Download the file from "${selectedFolder}".`
+								? `Download 1 file from "${selectedFolder}".`
 								: `Download ${fileCount} files from "${selectedFolder}" as a zip file.`
 							: fileCount === 1
-								? "Download the code file."
+								? "Download all code files in this project."
 								: "Download all code files in this project as a zip file."}
 					</p>
 					<button
