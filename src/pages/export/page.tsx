@@ -153,7 +153,28 @@ export default function ExportPage() {
 			const fileCount = filesToExport.length;
 			const fileWord = fileCount === 1 ? "file" : "files";
 
-			// Create a new JSZip instance
+			// If only one file, download it directly without zipping
+			if (fileCount === 1) {
+				const codeFile = filesToExport[0];
+				const fileName = codeFile.path || codeFile.name;
+				const blob = new Blob([codeFile.content], { type: "text/plain" });
+
+				// Create a download link and trigger the download
+				const url = URL.createObjectURL(blob);
+				const a = document.createElement("a");
+				a.href = url;
+				a.download = fileName;
+				document.body.appendChild(a);
+				a.click();
+				document.body.removeChild(a);
+				URL.revokeObjectURL(url);
+
+				setIsLoading(false);
+				framer.notify(`Successfully exported ${fileName}!`, { variant: "success" });
+				return;
+			}
+
+			// Create a new JSZip instance for multiple files
 			const zip = new JSZip();
 
 			// Add each code file to the zip
@@ -298,8 +319,12 @@ export default function ExportPage() {
 						}}
 					>
 						{selectedFolder
-							? `Download ${fileCount} ${fileCount === 1 ? "file" : "files"} from "${selectedFolder}" as a zip file.`
-							: "Download all code files in this project as a zip file."}
+							? fileCount === 1
+								? `Download the file from "${selectedFolder}".`
+								: `Download ${fileCount} files from "${selectedFolder}" as a zip file.`
+							: fileCount === 1
+								? "Download the code file."
+								: "Download all code files in this project as a zip file."}
 					</p>
 					<button
 						className="framer-button-primary"
