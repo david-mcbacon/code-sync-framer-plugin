@@ -177,6 +177,10 @@ export default function DocsPage() {
           via <code className="one-liner">framer.setPluginData</code>, so
           collaborators share the same target.
         </p>
+        <p style={{ marginBottom: 8 }}>
+          ⚠️ Important: Only for public env vars, not secrets! Framer is
+          client-side app, so everything in code is publicly accessible!
+        </p>
 
         <div
           style={{
@@ -211,7 +215,7 @@ export default function DocsPage() {
     staging: "https://staging-api.example.com",
     production: "https://api.example.com",
   },
-  API_KEY: {
+  PUBLIC_API_KEY: {
     development: "dev-key-123",
     staging: "staging-key-456",
     production: "prod-key-789",

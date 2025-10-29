@@ -1,7 +1,7 @@
 main {
-    --framer-color-tint: rgb(240, 89, 26);
-    --framer-color-tint-dark: rgb(232, 82, 23);
-    --framer-color-tint-extra-dark: rgb(219, 81, 26);
+    --framer-color-tint: #FA4624;
+    --framer-color-tint-dark: hsla(10, 96%, 56%, 0.834);
+    --framer-color-tint-extra-dark: hsla(10, 96%, 56%, 0.65);
     --color-success: #4caf50;
     --color-error: #f44336;
 }
