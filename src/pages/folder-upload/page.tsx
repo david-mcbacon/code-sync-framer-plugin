@@ -7,6 +7,7 @@ import {
 import UploadSettings from "./components/upload-settings";
 import UploadStatus from "./components/upload-status";
 import { UploadState } from "../../lib/types";
+import OpenSourceFooter from "../../components/open-source-footer";
 
 export default function FolderUploadPage() {
   const [uploadState, setUploadState] = useState<UploadState>("idle");
@@ -199,29 +200,7 @@ export default function FolderUploadPage() {
           </div>
         </div>
       </div>
-      <p
-        style={{
-          fontSize: "11px",
-          lineHeight: "1.3",
-          padding: "10px 10px 0px 10px",
-          color: "var(--framer-color-text-tertiary)",
-          textAlign: "center",
-        }}
-      >
-        It&apos;s open source! Jump into the
-        <a
-          href="https://github.com/david-mcbacon/code-sync-framer-plugin"
-          target="_blank"
-          rel="noopener noreferrer"
-          style={{
-            color: "var(--framer-color-tint)",
-          }}
-        >
-          {" "}
-          GitHub repo{" "}
-        </a>
-        and help make it even better.
-      </p>
+      <OpenSourceFooter />
     </div>
   );
 }
