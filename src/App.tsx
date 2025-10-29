@@ -1,7 +1,7 @@
 import { framer } from "framer-plugin";
 import "./App.css";
 import { useState } from "react";
-import FolderUploadPage from "./pages/folder-upload/page";
+import FolderUploadPage from "./pages/upload/page";
 import DocsPage from "./pages/docs/page";
 import ExportPage from "./pages/export/page";
 

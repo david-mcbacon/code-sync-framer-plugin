@@ -1,5 +1,5 @@
 import { framer } from "framer-plugin";
-import { withPermission } from "../utils/permission-utils";
+import { withPermission } from "../../../lib/permission-utils";
 import {
   FileProcessingData,
   EnvReplacementRule,

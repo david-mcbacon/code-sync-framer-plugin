@@ -1,5 +1,5 @@
 import React from "react";
-import { UploadState } from "../../../lib/types";
+import { UploadState } from "../lib/types";
 
 interface UploadStatusProps {
   uploadState: UploadState;
@@ -67,7 +67,9 @@ export default function UploadStatus({
                 animation: "spin 1s linear infinite",
               }}
             />
-            <span style={{ color: "var(--framer-color-tint)", fontWeight: "500" }}>
+            <span
+              style={{ color: "var(--framer-color-tint)", fontWeight: "500" }}
+            >
               Uploading files... {uploadedCount}/{totalFiles}
             </span>
           </div>
