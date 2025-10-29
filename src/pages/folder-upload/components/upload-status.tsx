@@ -24,7 +24,7 @@ export default function UploadStatus({
             style={{
               margin: "0",
               color: isDragging
-                ? "var(--color-accent)"
+                ? "var(--framer-color-tint)"
                 : "var(--framer-color-text-secondary)",
               fontWeight: "500",
               fontSize: "14px",
@@ -60,14 +60,14 @@ export default function UploadStatus({
               style={{
                 width: "16px",
                 height: "16px",
-                borderBottom: "2px solid var(--color-accent)",
-                borderRight: "2px solid var(--color-accent)",
+                borderBottom: "2px solid var(--framer-color-tint)",
+                borderRight: "2px solid var(--framer-color-tint)",
 
                 borderRadius: "50%",
                 animation: "spin 1s linear infinite",
               }}
             />
-            <span style={{ color: "var(--color-accent)", fontWeight: "500" }}>
+            <span style={{ color: "var(--framer-color-tint)", fontWeight: "500" }}>
               Uploading files... {uploadedCount}/{totalFiles}
             </span>
           </div>
@@ -75,7 +75,7 @@ export default function UploadStatus({
           <div
             style={{
               height: "5px",
-              background: `linear-gradient(to right, var(--color-accent) ${
+              background: `linear-gradient(to right, var(--framer-color-tint) ${
                 (uploadedCount / totalFiles) * 100
               }%, var(--framer-color-text-tertiary) ${
                 (uploadedCount / totalFiles) * 100

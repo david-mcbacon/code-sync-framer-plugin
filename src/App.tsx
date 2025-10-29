@@ -3,6 +3,7 @@ import "./App.css";
 import { useState } from "react";
 import FolderUploadPage from "./pages/folder-upload/page";
 import DocsPage from "./pages/docs/page";
+import ExportPage from "./pages/export/page";
 
 framer.showUI({
   position: "top left",
@@ -41,6 +42,12 @@ export function App() {
           Upload
         </div>
         <div
+          className={`tab-middle ${activeTab === "export" ? "active" : ""}`}
+          onClick={() => setActiveTab("export")}
+        >
+          Export
+        </div>
+        <div
           className={`tab-right ${activeTab === "docs" ? "active" : ""}`}
           onClick={() => setActiveTab("docs")}
         >
@@ -49,6 +56,7 @@ export function App() {
       </div>
       <div style={{ height: "100%", width: "100%", overflowY: "auto" }}>
         {activeTab === "upload" && <FolderUploadPage />}
+        {activeTab === "export" && <ExportPage />}
         {activeTab === "docs" && <DocsPage />}
       </div>
     </main>

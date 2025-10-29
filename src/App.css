@@ -1,19 +1,9 @@
-:root {
-    --color-accent: rgb(240, 89, 26);
+main {
+    --framer-color-tint: rgb(240, 89, 26);
+    --framer-color-tint-dark: rgb(232, 82, 23);
+    --framer-color-tint-extra-dark: rgb(219, 81, 26);
     --color-success: #4caf50;
     --color-error: #f44336;
-}
-
-input:focus, input:active, select:focus, select:active {
-    border: none;
-    outline: var(--color-accent) 1px solid;
-    outline-offset: -1px;
-    box-shadow: none;
-}
-
-input[type="checkbox"]:checked {
-    background-color: var(--color-accent) !important;
-    border-color: var(--color-accent) !important;
 }
 
 li {
@@ -22,7 +12,7 @@ li {
 
 code.one-liner {
     background-color: rgba(240, 89, 26, 0.2) !important;
-    color: var(--color-accent) !important;
+    color: var(--framer-color-tint) !important;
     padding: 1px 4px 1px 4px !important;
     border-radius: 4px !important;
 }
@@ -31,6 +21,17 @@ code.one-liner {
     width: 100%;
     padding: 5px 15px;
     border-radius: 10px 0 0 10px;
+    border: none;
+    background-color: var(--framer-color-bg-secondary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+.tab-middle {
+    width: 100%;
+    padding: 5px 15px;
     border: none;
     background-color: var(--framer-color-bg-secondary);
     display: flex;
@@ -51,7 +52,7 @@ code.one-liner {
     cursor: pointer;
 }
 
-.tab-left:hover, .tab-right:hover {
+.tab-left:hover, .tab-middle:hover, .tab-right:hover {
     background-color: var(--framer-color-bg-tertiary);
 }
 
