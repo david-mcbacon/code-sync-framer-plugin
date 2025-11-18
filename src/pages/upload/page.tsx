@@ -52,7 +52,6 @@ export default function FolderUploadPage({
         display: "flex",
         flexDirection: "column",
       }}
-      onClick={isMinimized ? handleRestore : undefined}
     >
       {!isMinimized && (
         <>

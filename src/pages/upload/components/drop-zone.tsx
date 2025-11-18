@@ -79,7 +79,8 @@ export default function DropZone(props: DropZoneProps) {
     );
   };
 
-  const handleClick = () => {
+  const handleClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
     if (uploadState === "loading") return;
     fileInputRef.current?.click();
   };
