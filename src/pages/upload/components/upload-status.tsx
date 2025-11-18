@@ -7,6 +7,7 @@ interface UploadStatusProps {
   uploadedCount: number;
   totalFiles: number;
   setUploadState: React.Dispatch<React.SetStateAction<UploadState>>;
+  isMinimized: boolean;
 }
 
 export default function UploadStatus({
@@ -15,6 +16,7 @@ export default function UploadStatus({
   uploadedCount,
   totalFiles,
   setUploadState,
+  isMinimized,
 }: UploadStatusProps) {
   switch (uploadState) {
     case "idle":
@@ -27,7 +29,7 @@ export default function UploadStatus({
                 ? "var(--framer-color-tint)"
                 : "var(--framer-color-text-secondary)",
               fontWeight: "500",
-              fontSize: "14px",
+              fontSize: isMinimized ? "10px" : "14px",
             }}
           >
             {isDragging ? "Drop here" : "Drag & drop or click to browse"}
@@ -36,7 +38,7 @@ export default function UploadStatus({
             style={{
               margin: "5px 0 0 0",
               color: "var(--framer-color-text-tertiary)",
-              fontSize: "12px",
+              fontSize: isMinimized ? "10px" : "12px",
             }}
           >
             Drag & drop a folder containing .tsx files or drag & drop multiple
@@ -58,8 +60,8 @@ export default function UploadStatus({
           <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
             <div
               style={{
-                width: "16px",
-                height: "16px",
+                width: isMinimized ? "12px" : "16px",
+                height: isMinimized ? "12px" : "16px",
                 borderBottom: "2px solid var(--framer-color-tint)",
                 borderRight: "2px solid var(--framer-color-tint)",
 
@@ -68,7 +70,11 @@ export default function UploadStatus({
               }}
             />
             <span
-              style={{ color: "var(--framer-color-tint)", fontWeight: "500" }}
+              style={{
+                color: "var(--framer-color-tint)",
+                fontWeight: "500",
+                fontSize: isMinimized ? "10px" : "14px",
+              }}
             >
               Uploading files... {uploadedCount}/{totalFiles}
             </span>
@@ -84,7 +90,7 @@ export default function UploadStatus({
               }%)`,
               borderRadius: "5px",
               border: "1px solid var(--framer-color-text-tertiary)",
-              width: "150px",
+              width: isMinimized ? "100px" : "150px",
             }}
           ></div>
         </div>
@@ -101,13 +107,19 @@ export default function UploadStatus({
           <p
             style={{
               color: "var(--color-success)",
-              fontSize: "24px",
+              fontSize: isMinimized ? "12px" : "24px",
               fontWeight: "500",
             }}
           >
             ✓
           </p>
-          <p style={{ color: "var(--color-success)", fontWeight: "500" }}>
+          <p
+            style={{
+              color: "var(--color-success)",
+              fontWeight: "500",
+              fontSize: isMinimized ? "10px" : "14px",
+            }}
+          >
             Successfully uploaded {uploadedCount} files to Framer!
           </p>
         </div>
@@ -131,7 +143,13 @@ export default function UploadStatus({
               gap: "5px",
             }}
           >
-            <p style={{ color: "var(--color-error)", fontWeight: "500" }}>
+            <p
+              style={{
+                color: "var(--color-error)",
+                fontWeight: "500",
+                fontSize: isMinimized ? "10px" : "14px",
+              }}
+            >
               Upload failed. Please try again.
             </p>
           </div>
@@ -146,7 +164,7 @@ export default function UploadStatus({
               color: "var(--framer-color-text)",
               border: "none",
               cursor: "pointer",
-              fontSize: "12px",
+              fontSize: isMinimized ? "10px" : "12px",
               lineHeight: "1",
               fontWeight: "500",
               width: "fit-content",
@@ -171,13 +189,19 @@ export default function UploadStatus({
           <span
             style={{
               color: "var(--color-success)",
-              fontSize: "20px",
+              fontSize: isMinimized ? "10px" : "20px",
               fontWeight: "500",
             }}
           >
             ✓
           </span>
-          <span style={{ color: "var(--color-success)", fontWeight: "500" }}>
+          <span
+            style={{
+              color: "var(--color-success)",
+              fontWeight: "500",
+              fontSize: isMinimized ? "10px" : "14px",
+            }}
+          >
             All files are up to date! No changes detected since last upload.
           </span>
         </div>

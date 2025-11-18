@@ -11,6 +11,7 @@ interface DropZoneProps {
   overwriteAll: boolean;
   unpackToRoot: boolean;
   uploadMode: "folder" | "files";
+  isMinimized: boolean;
 }
 
 export default function DropZone(props: DropZoneProps) {
@@ -115,61 +116,104 @@ export default function DropZone(props: DropZoneProps) {
         style={{ display: "none", height: "100%" }}
       />
 
-      <div
-        onClick={handleClick}
-        onDragOver={handleDragOver}
-        onDragLeave={handleDragLeave}
-        onDrop={handleDrop}
-        style={{
-          padding: "40px 20px",
-          height: "100%",
-          border: isDragging
-            ? "2px dashed var(--framer-color-tint)"
-            : uploadState === "error"
-            ? "2px dashed var(--color-error)"
-            : uploadState === "success" || uploadState === "no-changes"
-            ? "2px dashed var(--color-success)"
-            : "2px dashed var(--framer-color-bg-tertiary)",
-          borderRadius: "8px",
-          backgroundColor: isDragging
-            ? "rgba(240, 89, 26, 0.05)"
-            : uploadState === "loading"
-            ? "transparent"
-            : "transparent",
-          textAlign: "center",
-          cursor: uploadState === "loading" ? "not-allowed" : "pointer",
-          transition: "all 0.2s ease",
-          display: "flex",
-          flexDirection: "column",
-          justifyContent: "center",
-          alignItems: "center",
-          position: "relative",
-        }}
-      >
+      {!props.isMinimized && (
         <div
+          onClick={handleClick}
+          onDragOver={handleDragOver}
+          onDragLeave={handleDragLeave}
+          onDrop={handleDrop}
           style={{
-            position: "absolute",
-            top: "50%",
-            left: "50%",
-            transform: "translate(-50%, -70px)",
-            fontSize: "48px",
-            marginBottom: "10px",
-            opacity: 0.7,
-            userSelect: "none",
+            padding: "40px 20px",
+            height: "100%",
+            border: isDragging
+              ? "2px dashed var(--framer-color-tint)"
+              : uploadState === "error"
+              ? "2px dashed var(--color-error)"
+              : uploadState === "success" || uploadState === "no-changes"
+              ? "2px dashed var(--color-success)"
+              : "2px dashed var(--framer-color-bg-tertiary)",
+            borderRadius: "8px",
+            backgroundColor: isDragging
+              ? "rgba(240, 89, 26, 0.05)"
+              : uploadState === "loading"
+              ? "transparent"
+              : "transparent",
+            textAlign: "center",
+            cursor: uploadState === "loading" ? "not-allowed" : "pointer",
+            transition: "all 0.2s ease",
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "center",
+            alignItems: "center",
+            position: "relative",
           }}
         >
-          📁
-        </div>
+          <div
+            style={{
+              position: "absolute",
+              top: "50%",
+              left: "50%",
+              transform: "translate(-50%, -70px)",
+              fontSize: "48px",
+              marginBottom: "10px",
+              opacity: 0.7,
+              userSelect: "none",
+            }}
+          >
+            📁
+          </div>
 
+          <div
+            style={{
+              position: "absolute",
+              top: "50%",
+              left: "50%",
+              transform: "translate(-50%, -20px)",
+              width: "100%",
+              padding: "24px 12px",
+            }}
+          >
+            <UploadStatus
+              uploadState={uploadState}
+              isDragging={isDragging}
+              uploadedCount={uploadedCount}
+              totalFiles={totalFiles}
+              setUploadState={setUploadState}
+            />
+          </div>
+        </div>
+      )}
+      {props.isMinimized && (
         <div
           style={{
-            position: "absolute",
-            top: "50%",
-            left: "50%",
-            transform: "translate(-50%, -20px)",
-            width: "100%",
-            padding: "24px 12px",
+            padding: "6px",
+            height: "100%",
+            border: isDragging
+              ? "2px dashed var(--framer-color-tint)"
+              : uploadState === "error"
+              ? "2px dashed var(--color-error)"
+              : uploadState === "success" || uploadState === "no-changes"
+              ? "2px dashed var(--color-success)"
+              : "2px dashed var(--framer-color-bg-tertiary)",
+            borderRadius: "8px",
+            backgroundColor: isDragging
+              ? "rgba(240, 89, 26, 0.05)"
+              : uploadState === "loading"
+              ? "transparent"
+              : "transparent",
+            textAlign: "center",
+            cursor: uploadState === "loading" ? "not-allowed" : "pointer",
+            transition: "all 0.2s ease",
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "center",
+            alignItems: "center",
+            position: "relative",
           }}
+          onClick={handleClick}
+          onDragOver={handleDragOver}
+          onDragLeave={handleDragLeave}
+          onDrop={handleDrop}
         >
           <UploadStatus
             uploadState={uploadState}
@@ -177,9 +221,10 @@ export default function DropZone(props: DropZoneProps) {
             uploadedCount={uploadedCount}
             totalFiles={totalFiles}
             setUploadState={setUploadState}
+            isMinimized={props.isMinimized}
           />
         </div>
-      </div>
+      )}
     </div>
   );
 }

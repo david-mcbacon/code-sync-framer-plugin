@@ -13,6 +13,7 @@ framer.showUI({
 
 export function App() {
   const [activeTab, setActiveTab] = useState("upload");
+  const [isMinimized, setIsMinimized] = useState(false);
   return (
     <main
       style={{
@@ -21,41 +22,48 @@ export function App() {
         height: "100%",
         width: "100%",
         overflow: "hidden",
-        padding: "0px 15px 15px 15px",
+        padding: isMinimized ? "0px" : "0px 15px 15px 15px",
       }}
     >
-      <div
-        style={{
-          display: "flex",
-          flexDirection: "row",
-          gap: 0,
-          width: "100%",
-          height: "fit-content",
-          paddingBottom: "10px",
-          backgroundColor: "var(--framer-color-bg)",
-        }}
-      >
+      {!isMinimized && (
         <div
-          className={`tab-left ${activeTab === "upload" ? "active" : ""}`}
-          onClick={() => setActiveTab("upload")}
+          style={{
+            display: "flex",
+            flexDirection: "row",
+            gap: 0,
+            width: "100%",
+            height: "fit-content",
+            paddingBottom: "10px",
+            backgroundColor: "var(--framer-color-bg)",
+          }}
         >
-          Upload
+          <div
+            className={`tab-left ${activeTab === "upload" ? "active" : ""}`}
+            onClick={() => setActiveTab("upload")}
+          >
+            Upload
+          </div>
+          <div
+            className={`tab-middle ${activeTab === "export" ? "active" : ""}`}
+            onClick={() => setActiveTab("export")}
+          >
+            Export
+          </div>
+          <div
+            className={`tab-right ${activeTab === "docs" ? "active" : ""}`}
+            onClick={() => setActiveTab("docs")}
+          >
+            Docs
+          </div>
         </div>
-        <div
-          className={`tab-middle ${activeTab === "export" ? "active" : ""}`}
-          onClick={() => setActiveTab("export")}
-        >
-          Export
-        </div>
-        <div
-          className={`tab-right ${activeTab === "docs" ? "active" : ""}`}
-          onClick={() => setActiveTab("docs")}
-        >
-          Docs
-        </div>
-      </div>
+      )}
       <div style={{ height: "100%", width: "100%", overflowY: "auto" }}>
-        {activeTab === "upload" && <FolderUploadPage />}
+        {activeTab === "upload" && (
+          <FolderUploadPage
+            isMinimized={isMinimized}
+            setIsMinimized={setIsMinimized}
+          />
+        )}
         {activeTab === "export" && <ExportPage />}
         {activeTab === "docs" && <DocsPage />}
       </div>
