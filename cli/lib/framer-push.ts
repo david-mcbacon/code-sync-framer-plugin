@@ -50,13 +50,16 @@ export async function pushFiles(
   files: ScannedFile[],
   importRules: ImportReplacementRule[],
   onProgress: (message: string) => void,
-  envTarget: string = "staging"
+  envTarget: string = "staging",
+  framer?: Framer
 ): Promise<PushResult> {
   const result: PushResult = { created: [], updated: [], errors: [] };
 
-  onProgress("Connecting to Framer...");
-  const { connect } = await import("framer-api");
-  const framer: Framer = await connect(projectUrl);
+  if (!framer) {
+    onProgress("Connecting to Framer...");
+    const { connect } = await import("framer-api");
+    framer = await connect(projectUrl);
+  }
 
   try {
     onProgress("Fetching existing code files...");

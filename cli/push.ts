@@ -103,8 +103,9 @@ export async function runPush(args: string[]) {
   try {
     const existingFiles = await framer.getCodeFiles();
     existingFilePaths = new Set(existingFiles.map((f) => f.path));
-  } finally {
+  } catch (err) {
     await framer.disconnect();
+    throw err;
   }
 
   // Categorize files
@@ -161,8 +162,16 @@ export async function runPush(args: string[]) {
     filesToPush,
     config.importReplacements,
     (msg) => console.log(msg),
-    envTarget
+    envTarget,
+    framer
   );
+  
+  // Disconnect after push
+  try {
+    await framer.disconnect();
+  } catch (err) {
+    console.error(pc.gray(`Disconnect error (ignored): ${err}`));
+  }
 
   // Save last push time
   const now = Date.now();
