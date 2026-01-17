@@ -175,6 +175,7 @@ Optionally add `framer-code-sync.config.json` for transforms (same format as plu
 framer-code-sync-cli push                    # push changed .tsx files (uses staging env by default)
 framer-code-sync-cli push --force            # push all files
 framer-code-sync-cli push --yes               # skip confirmation
+framer-code-sync-cli push --refresh          # force refresh of Framer file cache
 framer-code-sync-cli push --env production    # use production environment
 framer-code-sync-cli push --env staging       # use staging environment (default)
 framer-code-sync-cli push --env development   # use development environment
@@ -185,10 +186,23 @@ framer-code-sync-cli --help                   # show help
 
 1. Scans all `.tsx` files in current directory (recursive)
 2. Filters to only changed files since last push (stored in `.framer-push-time`)
-3. Applies transforms from config (if present)
-4. Replaces `ENV.tsx` variables based on selected environment (defaults to `staging`)
+3. Checks which files exist in Framer:
+   - Uses cached file structure from `.framer-files.json` (default, faster)
+   - Fetches from Framer API if cache missing or `--refresh` flag used
+4. Applies transforms from config (if present)
+5. Replaces `ENV.tsx` variables based on selected environment (defaults to `staging`)
    - Replaces `ENV.*.development` → `ENV.*.{selected}` (e.g., `ENV.API_URL.development` → `ENV.API_URL.staging`)
-5. Pushes to Framer via `framer-api`
+6. Pushes to Framer via `framer-api`
+7. Updates cache with newly created files
+
+### File Caching
+
+The CLI caches Framer's file structure in `.framer-files.json` to avoid API calls on every push. This significantly speeds up subsequent pushes since it doesn't need to fetch the file list from Framer.
+
+- **First run**: Fetches from Framer and creates cache
+- **Subsequent runs**: Uses cache by default (much faster)
+- **Refresh cache**: Use `--refresh` or `--refetch` to force refetch from Framer
+- **Auto-update**: Cache is automatically updated with newly created files after each push
 
 ## 🤝 Contributing
 

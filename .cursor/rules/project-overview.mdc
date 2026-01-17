@@ -19,6 +19,7 @@ CLI (global):
 - `framer-code-sync-cli push` push changed
 - `framer-code-sync-cli push --force` push all
 - `framer-code-sync-cli push --yes` skip confirm
+- `framer-code-sync-cli push --refresh` refresh Framer file cache
 
 CLI dev (from `cli/`):
 - `pnpm build` compile to dist/
@@ -45,10 +46,11 @@ Types (`types.ts`):
 
 ### CLI (`cli/`)
 - `index.ts` entry point, command router
-- `push.ts` exports `runPush()`, args `--force`, `--yes`
-- `lib/file-scanner` tsx scan from cwd + mtime filter
+- `push.ts` exports `runPush()`, args `--force`, `--yes`, `--refresh`
+- `lib/file-scanner` tsx scan from cwd + mtime filter + Framer file cache (`.framer-files.json`)
 - `lib/transform` load config from cwd + apply rules
 - `lib/framer-push` upload via API
+- Caches Framer file structure to avoid API calls (uses cache by default, `--refresh` forces refetch)
 
 Globally installable via `npm i -g framer-code-sync-cli`.
 Needs `.env` in cwd with `FRAMER_PROJECT_URL`.
