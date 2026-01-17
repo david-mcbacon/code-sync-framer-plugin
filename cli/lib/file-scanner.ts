@@ -79,3 +79,44 @@ export function readLastPushTime(filePath: string): number | null {
 export function saveLastPushTime(filePath: string, timestamp: number): void {
   fs.writeFileSync(filePath, timestamp.toString(), "utf-8");
 }
+
+interface FramerFilesCache {
+  files: string[];
+  lastUpdated: number;
+}
+
+export function readFramerFilesCache(filePath: string): Set<string> | null {
+  try {
+    const content = fs.readFileSync(filePath, "utf-8");
+    const cache: FramerFilesCache = JSON.parse(content);
+    if (cache && Array.isArray(cache.files)) {
+      return new Set(cache.files);
+    }
+    return null;
+  } catch {
+    return null;
+  }
+}
+
+export function saveFramerFilesCache(filePath: string, filePaths: string[]): void {
+  const cache: FramerFilesCache = {
+    files: filePaths,
+    lastUpdated: Date.now(),
+  };
+  fs.writeFileSync(filePath, JSON.stringify(cache, null, 2), "utf-8");
+}
+
+export function updateFramerFilesCache(
+  filePath: string,
+  newFilePaths: string[]
+): void {
+  const existingCache = readFramerFilesCache(filePath);
+  if (existingCache) {
+    // Merge new files into existing cache
+    const merged = new Set([...existingCache, ...newFilePaths]);
+    saveFramerFilesCache(filePath, Array.from(merged));
+  } else {
+    // Create new cache with just the new files
+    saveFramerFilesCache(filePath, newFilePaths);
+  }
+}

@@ -6,12 +6,16 @@ import {
   filterChangedFiles,
   readLastPushTime,
   saveLastPushTime,
+  readFramerFilesCache,
+  saveFramerFilesCache,
+  updateFramerFilesCache,
   type ScannedFile,
 } from "./lib/file-scanner.js";
 import { loadConfig } from "./lib/transform.js";
 import { pushFiles } from "./lib/framer-push.js";
 
 const LAST_PUSH_FILE = path.join(process.cwd(), ".framer-push-time");
+const FRAMER_FILES_CACHE = path.join(process.cwd(), ".framer-files.json");
 
 function hexColor(hex: string): (text: string) => string {
   const cleanHex = hex.replace("#", "");
@@ -24,6 +28,7 @@ function hexColor(hex: string): (text: string) => string {
 export async function runPush(args: string[]) {
   const forceAll = args.includes("--force");
   const skipConfirm = args.includes("--yes");
+  const refreshCache = args.includes("--refresh") || args.includes("--refetch");
 
   // Parse --env or --environment argument
   let envTarget = "staging"; // default
@@ -96,16 +101,45 @@ export async function runPush(args: string[]) {
   }
 
   // Check which files exist in Framer to determine create vs update
-  console.log(pc.cyan("Checking existing files in Framer..."));
-  const { connect } = await import("framer-api");
-  const framer = await connect(projectUrl);
   let existingFilePaths: Set<string>;
-  try {
-    const existingFiles = await framer.getCodeFiles();
-    existingFilePaths = new Set(existingFiles.map((f) => f.path));
-  } catch (err) {
-    await framer.disconnect();
-    throw err;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let framer: any = null;
+
+  // Try to load from cache first (unless refresh is requested)
+  if (!refreshCache) {
+    const cachedFiles = readFramerFilesCache(FRAMER_FILES_CACHE);
+    if (cachedFiles) {
+      console.log(pc.cyan("Using cached Framer file structure..."));
+      existingFilePaths = cachedFiles;
+    } else {
+      // Cache doesn't exist, fetch from Framer
+      console.log(pc.cyan("Cache not found. Fetching files from Framer..."));
+      const { connect } = await import("framer-api");
+      framer = await connect(projectUrl);
+      try {
+        const existingFiles = await framer.getCodeFiles();
+        existingFilePaths = new Set(existingFiles.map((f: { path: string }) => f.path));
+        saveFramerFilesCache(FRAMER_FILES_CACHE, Array.from(existingFilePaths));
+        console.log(pc.green(`Cached ${existingFilePaths.size} files`));
+      } catch (err) {
+        await framer.disconnect();
+        throw err;
+      }
+    }
+  } else {
+    // Refresh flag set, fetch from Framer
+    console.log(pc.cyan("Refreshing cache from Framer..."));
+    const { connect } = await import("framer-api");
+    framer = await connect(projectUrl);
+    try {
+      const existingFiles = await framer.getCodeFiles();
+      existingFilePaths = new Set(existingFiles.map((f: { path: string }) => f.path));
+      saveFramerFilesCache(FRAMER_FILES_CACHE, Array.from(existingFilePaths));
+      console.log(pc.green(`Cached ${existingFilePaths.size} files`));
+    } catch (err) {
+      await framer.disconnect();
+      throw err;
+    }
   }
 
   // Categorize files
@@ -150,8 +184,23 @@ export async function runPush(args: string[]) {
     );
     if (!confirmed) {
       console.log(pc.red("Aborted."));
+      // Disconnect if we have a connection
+      if (framer) {
+        try {
+          await framer.disconnect();
+        } catch {
+          // Ignore disconnect errors
+        }
+      }
       process.exit(0);
     }
+  }
+
+  // If we don't have a connection yet (used cache), connect now for push
+  if (!framer) {
+    console.log(pc.cyan("Connecting to Framer for push..."));
+    const { connect } = await import("framer-api");
+    framer = await connect(projectUrl);
   }
 
   // Push files
@@ -171,6 +220,11 @@ export async function runPush(args: string[]) {
     await framer.disconnect();
   } catch (err) {
     console.error(pc.gray(`Disconnect error (ignored): ${err}`));
+  }
+
+  // Update cache with newly created files
+  if (result.created.length > 0) {
+    updateFramerFilesCache(FRAMER_FILES_CACHE, result.created);
   }
 
   // Save last push time
