@@ -25,6 +25,26 @@ export async function runPush(args: string[]) {
   const forceAll = args.includes("--force");
   const skipConfirm = args.includes("--yes");
 
+  // Parse --env or --environment argument
+  let envTarget = "staging"; // default
+  const envIndex = args.findIndex(
+    (arg) => arg === "--env" || arg === "--environment"
+  );
+  if (envIndex !== -1 && envIndex + 1 < args.length) {
+    const envValue = args[envIndex + 1];
+    const validEnvs = ["development", "staging", "production"];
+    if (validEnvs.includes(envValue)) {
+      envTarget = envValue;
+    } else {
+      console.error(
+        pc.red(
+          `Error: Invalid environment "${envValue}". Must be one of: ${validEnvs.join(", ")}`
+        )
+      );
+      process.exit(1);
+    }
+  }
+
   const projectUrl = process.env["FRAMER_PROJECT_URL"];
   if (!projectUrl) {
     console.error(pc.red("Error: FRAMER_PROJECT_URL not found"));
@@ -135,11 +155,13 @@ export async function runPush(args: string[]) {
 
   // Push files
   console.log(pc.cyan("\nPushing files...\n"));
+  console.log(pc.gray(`Environment: ${pc.bold(envTarget)}`));
   const result = await pushFiles(
     projectUrl,
     filesToPush,
     config.importReplacements,
-    (msg) => console.log(msg)
+    (msg) => console.log(msg),
+    envTarget
   );
 
   // Save last push time

@@ -49,7 +49,8 @@ export async function pushFiles(
   projectUrl: string,
   files: ScannedFile[],
   importRules: ImportReplacementRule[],
-  onProgress: (message: string) => void
+  onProgress: (message: string) => void,
+  envTarget: string = "staging"
 ): Promise<PushResult> {
   const result: PushResult = { created: [], updated: [], errors: [] };
 
@@ -106,7 +107,7 @@ export async function pushFiles(
           async ({ file, created }) => {
             try {
               const rawContent = fs.readFileSync(file.absolutePath, "utf-8");
-              const transformed = transformContent(rawContent, importRules, file.framerPath);
+              const transformed = transformContent(rawContent, importRules, file.framerPath, envTarget);
               await created!.setFileContent(transformed);
               result.created.push(file.framerPath);
               onProgress(`  Updated: ${file.framerPath}`);
@@ -140,7 +141,7 @@ export async function pushFiles(
           async ({ file, existing }) => {
             try {
               const rawContent = fs.readFileSync(file.absolutePath, "utf-8");
-              const transformed = transformContent(rawContent, importRules, file.framerPath);
+              const transformed = transformContent(rawContent, importRules, file.framerPath, envTarget);
               await existing.setFileContent(transformed);
               result.updated.push(file.framerPath);
               onProgress(`  Updated: ${file.framerPath}`);

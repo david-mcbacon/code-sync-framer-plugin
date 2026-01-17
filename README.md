@@ -172,10 +172,13 @@ Optionally add `framer-code-sync.config.json` for transforms (same format as plu
 ### Usage
 
 ```bash
-framer-code-sync-cli push           # push changed .tsx files
-framer-code-sync-cli push --force   # push all files
-framer-code-sync-cli push --yes     # skip confirmation
-framer-code-sync-cli --help         # show help
+framer-code-sync-cli push                    # push changed .tsx files (uses staging env by default)
+framer-code-sync-cli push --force            # push all files
+framer-code-sync-cli push --yes               # skip confirmation
+framer-code-sync-cli push --env production    # use production environment
+framer-code-sync-cli push --env staging       # use staging environment (default)
+framer-code-sync-cli push --env development   # use development environment
+framer-code-sync-cli --help                   # show help
 ```
 
 ### How it works
@@ -183,7 +186,9 @@ framer-code-sync-cli --help         # show help
 1. Scans all `.tsx` files in current directory (recursive)
 2. Filters to only changed files since last push (stored in `.framer-push-time`)
 3. Applies transforms from config (if present)
-4. Pushes to Framer via `framer-api`
+4. Replaces `ENV.tsx` variables based on selected environment (defaults to `staging`)
+   - Replaces `ENV.*.development` → `ENV.*.{selected}` (e.g., `ENV.API_URL.development` → `ENV.API_URL.staging`)
+5. Pushes to Framer via `framer-api`
 
 ## 🤝 Contributing
 

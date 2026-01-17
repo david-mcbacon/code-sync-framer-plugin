@@ -6,6 +6,11 @@ export interface ImportReplacementRule {
   replace: string;
 }
 
+export interface EnvReplacementRule {
+  from: string;
+  to: string;
+}
+
 export interface CodeSyncConfig {
   version: number;
   importReplacements: ImportReplacementRule[];
@@ -39,10 +44,18 @@ export function loadConfig(): LoadConfigResult {
 export function transformContent(
   content: string,
   rules: ImportReplacementRule[],
-  framerPath: string
+  framerPath: string,
+  envTarget: string = "staging"
 ): string {
   let output = content;
   output = applyImportReplacements(output, rules, framerPath);
+  
+  // Apply ENV replacement
+  const envReplacementRules: EnvReplacementRule[] = [
+    { from: "development", to: envTarget },
+  ];
+  output = applyEnvReplacement(output, envReplacementRules);
+  
   output = ensureTsxExtensions(output);
   return output;
 }
@@ -142,6 +155,40 @@ function replaceImportSpecifier(
     (_m, prefix: string, quote: string) =>
       `${prefix}import ${quote}${replacement}${quote}`
   );
+
+  return content;
+}
+
+function applyEnvReplacement(
+  content: string,
+  replacementRules: EnvReplacementRule[]
+): string {
+  if (!replacementRules.length) return content;
+
+  for (const rule of replacementRules) {
+    const { from, to } = rule;
+
+    // Escape special regex characters in environment names
+    const escapedFrom = from.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+    // Pattern 1: ENV.something.from -> ENV.something.to
+    content = content.replace(
+      new RegExp(
+        `\\bENV\\.([a-zA-Z_$][a-zA-Z0-9_$]*)\\.${escapedFrom}\\b`,
+        "g"
+      ),
+      `ENV.$1.${to}`
+    );
+
+    // Pattern 2: ENV["something"]["from"] or ENV['something']['from']
+    content = content.replace(
+      new RegExp(
+        `\\bENV\\[(['"])([a-zA-Z_$][a-zA-Z0-9_$]*)\\1\\]\\[(['"])${escapedFrom}\\3\\]`,
+        "g"
+      ),
+      `ENV[$1$2$1][$3${to}$3]`
+    );
+  }
 
   return content;
 }

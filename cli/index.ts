@@ -22,6 +22,8 @@ ${pc.bold("Commands:")}
 ${pc.bold("Push Options:")}
   --force     Push all files, ignore last push time
   --yes       Skip confirmation prompt
+  --env       Environment for ENV.tsx replacement (development|staging|production)
+              Default: staging
 
 ${pc.bold("Setup:")}
   Create .env in your project root with:
