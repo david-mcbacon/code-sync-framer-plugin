@@ -1,19 +1,26 @@
 {
-  "name": "framer-components-staging-push",
-  "version": "1.0.0",
+  "name": "framer-code-sync-cli",
+  "version": "0.0.1",
   "type": "module",
+  "bin": {
+    "framer-code-sync-cli": "./dist/push.js"
+  },
+  "files": [
+    "dist"
+  ],
   "scripts": {
+    "build": "tsc",
     "push": "tsx push.ts",
     "push:force": "tsx push.ts --force",
     "push:yes": "tsx push.ts --yes"
   },
   "dependencies": {
+    "dotenv": "^16.4.0",
     "framer-api": "0.0.1-beta.4",
     "picocolors": "^1.1.1"
   },
   "devDependencies": {
     "@types/node": "^22.0.0",
-    "dotenv": "^16.4.0",
     "tsx": "^4.19.0",
     "typescript": "^5.5.0"
   }

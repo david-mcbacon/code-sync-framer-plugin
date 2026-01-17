@@ -13,10 +13,9 @@ export interface ScanResult {
   changedFiles: ScannedFile[];
 }
 
-const COMPONENTS_DIR = path.resolve(
-  import.meta.dirname,
-  "../../cli-test"
-);
+export function getComponentsDir(): string {
+  return process.cwd();
+}
 
 export function scanTsxFiles(ignoredFiles: string[] = []): ScannedFile[] {
   const files: ScannedFile[] = [];
@@ -53,7 +52,7 @@ export function scanTsxFiles(ignoredFiles: string[] = []): ScannedFile[] {
     }
   }
 
-  scanDir(COMPONENTS_DIR);
+  scanDir(getComponentsDir());
   return files;
 }
 

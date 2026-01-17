@@ -12,17 +12,27 @@ export interface CodeSyncConfig {
   ignoredFiles: string[];
 }
 
-const CONFIG_PATH = path.resolve(
-  import.meta.dirname,
-  "../../../framer-components/src/frameship-components/framer-code-sync.config.json"
-);
+const CONFIG_FILENAME = "framer-code-sync.config.json";
 
-export function loadConfig(): CodeSyncConfig {
+export interface LoadConfigResult {
+  config: CodeSyncConfig;
+  found: boolean;
+}
+
+export function getConfigPath(): string {
+  return path.join(process.cwd(), CONFIG_FILENAME);
+}
+
+export function loadConfig(): LoadConfigResult {
+  const configPath = getConfigPath();
   try {
-    const content = fs.readFileSync(CONFIG_PATH, "utf-8");
-    return JSON.parse(content);
+    const content = fs.readFileSync(configPath, "utf-8");
+    return { config: JSON.parse(content), found: true };
   } catch {
-    return { version: 1, importReplacements: [], ignoredFiles: [] };
+    return {
+      config: { version: 1, importReplacements: [], ignoredFiles: [] },
+      found: false,
+    };
   }
 }
 

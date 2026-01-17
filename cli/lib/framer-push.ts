@@ -1,6 +1,6 @@
 import fs from "node:fs";
-import type { ScannedFile } from "./file-scanner.ts";
-import { transformContent, type ImportReplacementRule } from "./transform.ts";
+import type { ScannedFile } from "./file-scanner.js";
+import { transformContent, type ImportReplacementRule } from "./transform.js";
 
 const DUMMY_CONTENT = `export default function Test() { return <div>Test</div> }`;
 const CONCURRENCY = 10; // Max parallel requests

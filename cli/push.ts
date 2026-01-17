@@ -1,4 +1,5 @@
-import "dotenv/config";
+#!/usr/bin/env node
+import dotenv from "dotenv";
 import path from "node:path";
 import readline from "node:readline";
 import pc from "picocolors";
@@ -8,11 +9,14 @@ import {
   readLastPushTime,
   saveLastPushTime,
   type ScannedFile,
-} from "./lib/file-scanner.ts";
-import { loadConfig } from "./lib/transform.ts";
-import { pushFiles } from "./lib/framer-push.ts";
+} from "./lib/file-scanner.js";
+import { loadConfig } from "./lib/transform.js";
+import { pushFiles } from "./lib/framer-push.js";
 
-const LAST_PUSH_FILE = path.join(import.meta.dirname, "last-push.txt");
+// Load .env from current working directory
+dotenv.config({ path: path.join(process.cwd(), ".env") });
+
+const LAST_PUSH_FILE = path.join(process.cwd(), ".framer-push-time");
 
 // Helper function to create custom hex color
 function hexColor(hex: string): (text: string) => string {
@@ -34,26 +38,27 @@ const skipConfirm = args.includes("--yes");
 async function main() {
   const projectUrl = process.env["FRAMER_PROJECT_URL"];
   if (!projectUrl) {
-    console.error(
-      pc.red("Error: FRAMER_PROJECT_URL environment variable is required")
-    );
-    console.error(
-      pc.gray(
-        "Create a .env file with: FRAMER_PROJECT_URL=https://framer.com/projects/..."
-      )
-    );
+    console.error(pc.red("Error: FRAMER_PROJECT_URL not found"));
+    console.error(pc.gray("Create .env in current directory with:"));
+    console.error(pc.gray("  FRAMER_PROJECT_URL=https://framer.com/projects/..."));
     process.exit(1);
   }
 
   // Load config
-  const config = loadConfig();
-  console.log(
-    pc.cyan(
-      `Loaded config with ${pc.bold(
-        config.importReplacements.length
-      )} import rules`
-    )
-  );
+  const { config, found: configFound } = loadConfig();
+  if (!configFound) {
+    console.log(
+      pc.yellow("No framer-code-sync.config.json found, using defaults")
+    );
+  } else {
+    console.log(
+      pc.cyan(
+        `Loaded config with ${pc.bold(
+          config.importReplacements.length
+        )} import rules`
+      )
+    );
+  }
 
   // Scan files
   const allFiles = scanTsxFiles(config.ignoredFiles);
