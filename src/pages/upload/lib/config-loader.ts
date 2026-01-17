@@ -4,7 +4,7 @@ import {
   ImportReplacementRule,
   StringReplacementRule,
 } from "./types";
-import { readFileContent, getUploadedRelativePath } from "./file-processing";
+import { readFileContent } from "./file-processing";
 
 const CONFIG_CANDIDATE_NAMES = [
   "framer-code-sync.config.json",
@@ -27,11 +27,25 @@ export const loadConfigFromUpload = async (
 };
 
 const findConfigFile = (files: File[]): File | undefined => {
-  // Treat uploaded folder's first segment as root, like code files
-  return files.find((file) => {
-    const relativeFromRoot = getUploadedRelativePath(file, true);
-    return CONFIG_CANDIDATE_NAMES.includes(relativeFromRoot);
+  // Find all files matching config names anywhere in the folder structure
+  const candidates = files.filter((file) => {
+    return CONFIG_CANDIDATE_NAMES.includes(file.name);
   });
+
+  if (candidates.length === 0) return undefined;
+
+  // Prefer the one closest to the root (shortest path depth)
+  candidates.sort((a, b) => {
+    const aPath =
+      (a as File & { webkitRelativePath?: string }).webkitRelativePath ||
+      a.name;
+    const bPath =
+      (b as File & { webkitRelativePath?: string }).webkitRelativePath ||
+      b.name;
+    return aPath.split("/").length - bPath.split("/").length;
+  });
+
+  return candidates[0];
 };
 
 const parseConfigJson = (raw: string): unknown => {
