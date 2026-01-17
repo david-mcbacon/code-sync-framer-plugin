@@ -30,6 +30,15 @@ This Framer plugin is built as a modern React application with the following tec
 - **CSS Styling** - Combination of inline styles and external `App.css` file. Planning to migrate to Tailwind CSS in the future.
 - **ESLint** - Code linting and quality assurance
 
+## 🤖 AI Agentic Coding Support
+
+This repository includes `.cursor` and `.claude` folders with rules and context specifically designed to enhance AI agentic coding experiences. These folders contain:
+
+- **`.cursor/rules/`** - Cursor IDE rules for improved AI-assisted development
+- **`.claude/`** - Claude Code AI context and instructions for better code understanding
+
+These files provide AI agents with project-specific knowledge, coding standards, and development workflows to ensure consistent and high-quality contributions.
+
 ## ⚡ Quick Start
 
 1. **Select your upload mode** — folder or individual files
