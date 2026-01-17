@@ -3,16 +3,16 @@
   "version": "0.0.1",
   "type": "module",
   "bin": {
-    "framer-code-sync-cli": "./dist/push.js"
+    "framer-code-sync-cli": "./dist/index.js"
   },
   "files": [
     "dist"
   ],
   "scripts": {
     "build": "tsc",
-    "push": "tsx push.ts",
-    "push:force": "tsx push.ts --force",
-    "push:yes": "tsx push.ts --yes"
+    "push": "tsx index.ts push",
+    "push:force": "tsx index.ts push --force",
+    "push:yes": "tsx index.ts push --yes"
   },
   "dependencies": {
     "dotenv": "^16.4.0",

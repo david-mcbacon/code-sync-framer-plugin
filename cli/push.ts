@@ -1,5 +1,3 @@
-#!/usr/bin/env node
-import dotenv from "dotenv";
 import path from "node:path";
 import readline from "node:readline";
 import pc from "picocolors";
@@ -13,29 +11,20 @@ import {
 import { loadConfig } from "./lib/transform.js";
 import { pushFiles } from "./lib/framer-push.js";
 
-// Load .env from current working directory
-dotenv.config({ path: path.join(process.cwd(), ".env") });
-
 const LAST_PUSH_FILE = path.join(process.cwd(), ".framer-push-time");
 
-// Helper function to create custom hex color
 function hexColor(hex: string): (text: string) => string {
-  // Remove # if present
   const cleanHex = hex.replace("#", "");
-  // Convert hex to RGB
   const r = parseInt(cleanHex.substring(0, 2), 16);
   const g = parseInt(cleanHex.substring(2, 4), 16);
   const b = parseInt(cleanHex.substring(4, 6), 16);
-  // Return function that applies ANSI color code
   return (text: string) => `\x1b[38;2;${r};${g};${b}m${text}\x1b[0m`;
 }
 
-// Parse CLI args
-const args = process.argv.slice(2);
-const forceAll = args.includes("--force");
-const skipConfirm = args.includes("--yes");
+export async function runPush(args: string[]) {
+  const forceAll = args.includes("--force");
+  const skipConfirm = args.includes("--yes");
 
-async function main() {
   const projectUrl = process.env["FRAMER_PROJECT_URL"];
   if (!projectUrl) {
     console.error(pc.red("Error: FRAMER_PROJECT_URL not found"));
@@ -200,8 +189,3 @@ async function askConfirmation(prompt: string): Promise<boolean> {
     });
   });
 }
-
-main().catch((err) => {
-  console.error(pc.red("Fatal error:"), err);
-  process.exit(1);
-});

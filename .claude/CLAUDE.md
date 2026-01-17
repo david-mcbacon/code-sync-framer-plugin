@@ -12,10 +12,14 @@ Plugin:
 - `pnpm build` prod build
 - `pnpm lint`
 
-CLI (from `cli/`):
-- `pnpm push` push changed
-- `pnpm push:force` push all
-- `pnpm push:yes` no confirm
+CLI (global):
+- `framer-code-sync-cli push` push changed
+- `framer-code-sync-cli push --force` push all
+- `framer-code-sync-cli push --yes` skip confirm
+
+CLI dev (from `cli/`):
+- `pnpm build` compile to dist/
+- `pnpm link --global` link globally
 
 ## Architecture
 
@@ -37,12 +41,14 @@ Types (`types.ts`):
 - `UploadState`
 
 ### CLI (`cli/`)
-- `push.ts` args `--force`, `--yes`
-- `file-scanner` tsx scan + mtime filter
-- `transform` load config + apply rules
-- `framer-push` upload via API
+- `index.ts` entry point, command router
+- `push.ts` exports `runPush()`, args `--force`, `--yes`
+- `lib/file-scanner` tsx scan from cwd + mtime filter
+- `lib/transform` load config from cwd + apply rules
+- `lib/framer-push` upload via API
 
-Needs `.env` with `FRAMER_PROJECT_URL`.
+Globally installable via `npm i -g framer-code-sync-cli`.
+Needs `.env` in cwd with `FRAMER_PROJECT_URL`.
 
 ## Config
 

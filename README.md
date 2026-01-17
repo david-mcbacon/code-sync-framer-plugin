@@ -126,6 +126,56 @@ Your selected environment is stored per project via `framer.setPluginData`, so c
 - `Config not applied` — Ensure `framer-code-sync.config.json` is at the root of your uploaded folder
 - `Import errors` — Verify that replacement URLs and paths are correct
 
+## 💻 CLI
+
+Push `.tsx` files to Framer from the command line — no plugin UI needed.
+
+### Installation
+
+**From source (current):**
+
+```bash
+git clone https://github.com/david-mcbacon/code-sync-framer-plugin.git
+cd framer-code-sync/cli
+pnpm install && pnpm build
+
+# Link globally (first time may need: pnpm setup && restart terminal)
+pnpm link --global
+```
+
+**From npm (once published):**
+
+```bash
+npm i -g framer-code-sync-cli
+```
+
+### Setup
+
+Create `.env` in your project root:
+
+```env
+FRAMER_PROJECT_URL=https://framer.com/projects/YOUR-PROJECT-ID
+FRAMER_API_KEY=YOUR-API-KEY
+```
+
+Optionally add `framer-code-sync.config.json` for transforms (same format as plugin config).
+
+### Usage
+
+```bash
+framer-code-sync-cli push           # push changed .tsx files
+framer-code-sync-cli push --force   # push all files
+framer-code-sync-cli push --yes     # skip confirmation
+framer-code-sync-cli --help         # show help
+```
+
+### How it works
+
+1. Scans all `.tsx` files in current directory (recursive)
+2. Filters to only changed files since last push (stored in `.framer-push-time`)
+3. Applies transforms from config (if present)
+4. Pushes to Framer via `framer-api`
+
 ## 🤝 Contributing
 
 Every developer’s needs are different — that’s why this plugin is open source.
