@@ -1,5 +1,7 @@
+import fs from "node:fs";
 import path from "node:path";
 import readline from "node:readline";
+import dotenv from "dotenv";
 import pc from "picocolors";
 import {
   scanTsxFiles,
@@ -14,8 +16,22 @@ import {
 import { loadConfig } from "./lib/transform.js";
 import { pushFiles } from "./lib/framer-push.js";
 
-const LAST_PUSH_FILE = path.join(process.cwd(), ".framer-push-time");
-const FRAMER_FILES_CACHE = path.join(process.cwd(), ".framer-files.json");
+const CACHE_DIR = path.join(process.cwd(), ".framer-code-sync-cli");
+
+function getCacheFilePath(envTarget: string, baseName: string): string {
+  // Ensure cache directory exists
+  if (!fs.existsSync(CACHE_DIR)) {
+    fs.mkdirSync(CACHE_DIR, { recursive: true });
+  }
+  
+  // For default environment (development), use base name without suffix
+  // For other environments, add suffix
+  const fileName = envTarget === "development" 
+    ? baseName 
+    : `${baseName}.${envTarget}`;
+  
+  return path.join(CACHE_DIR, fileName);
+}
 
 function hexColor(hex: string): (text: string) => string {
   const cleanHex = hex.replace("#", "");
@@ -31,7 +47,7 @@ export async function runPush(args: string[]) {
   const refreshCache = args.includes("--refresh") || args.includes("--refetch");
 
   // Parse --env or --environment argument
-  let envTarget = "staging"; // default
+  let envTarget = "development"; // default
   const envIndex = args.findIndex(
     (arg) => arg === "--env" || arg === "--environment"
   );
@@ -50,10 +66,28 @@ export async function runPush(args: string[]) {
     }
   }
 
+  // Load environment-specific .env file
+  const envFileName = envTarget === "development" ? ".env" : `.env.${envTarget}`;
+  const envFilePath = path.join(process.cwd(), envFileName);
+  
+  if (!fs.existsSync(envFilePath)) {
+    console.error(pc.red(`Error: ${envFileName} not found`));
+    console.error(pc.gray(`Create ${envFileName} in current directory with:`));
+    console.error(pc.gray("  FRAMER_PROJECT_URL=https://framer.com/projects/..."));
+    process.exit(1);
+  }
+  
+  // Load the environment-specific .env file
+  dotenv.config({ path: envFilePath });
+
+  // Get environment-specific cache file paths
+  const LAST_PUSH_FILE = getCacheFilePath(envTarget, ".framer-push-time");
+  const FRAMER_FILES_CACHE = getCacheFilePath(envTarget, ".framer-files.json");
+
   const projectUrl = process.env["FRAMER_PROJECT_URL"];
   if (!projectUrl) {
-    console.error(pc.red("Error: FRAMER_PROJECT_URL not found"));
-    console.error(pc.gray("Create .env in current directory with:"));
+    console.error(pc.red(`Error: FRAMER_PROJECT_URL not found in ${envFileName}`));
+    console.error(pc.gray(`Ensure ${envFileName} contains:`));
     console.error(pc.gray("  FRAMER_PROJECT_URL=https://framer.com/projects/..."));
     process.exit(1);
   }

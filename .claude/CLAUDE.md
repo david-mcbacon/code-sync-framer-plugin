@@ -43,13 +43,15 @@ Types (`types.ts`):
 
 ### CLI (`cli/`)
 - `index.ts` entry point, command router
-- `push.ts` exports `runPush()`, args `--force`, `--yes`, `--refresh`
-- `lib/file-scanner` tsx scan from cwd + mtime filter + Framer file cache (`.framer-files.json`)
+- `push.ts` exports `runPush()`, args `--force`, `--yes`, `--refresh`, `--env`
+- `lib/file-scanner` tsx scan from cwd + mtime filter + Framer file cache
 - `lib/transform` load config from cwd + apply rules
 - `lib/framer-push` upload via API
-- Caches Framer file structure to avoid API calls (uses cache by default, `--refresh` forces refetch)
+- Environment-specific `.env` files: `.env` (dev), `.env.staging`, `.env.production`
+- Environment-specific cache in `.framer-code-sync-cli/`: `.framer-files.json` (dev), `.framer-files.json.{env}` (others)
+- Default environment: `development`
+- Caches Framer file structure per environment to avoid API calls (uses cache by default, `--refresh` forces refetch)
 Globally installable via `npm i -g framer-code-sync-cli`.
-Needs `.env` in cwd with `FRAMER_PROJECT_URL`.
 
 ## Config
 

@@ -1,10 +1,8 @@
 #!/usr/bin/env node
-import dotenv from "dotenv";
 import path from "node:path";
 import pc from "picocolors";
 
-// Load .env from current working directory
-dotenv.config({ path: path.join(process.cwd(), ".env") });
+// Note: Environment-specific .env files are loaded in push.ts based on --env flag
 
 const args = process.argv.slice(2);
 const command = args[0];
@@ -23,10 +21,15 @@ ${pc.bold("Push Options:")}
   --force     Push all files, ignore last push time
   --yes       Skip confirmation prompt
   --env       Environment for ENV.tsx replacement (development|staging|production)
-              Default: staging
+              Default: development
 
 ${pc.bold("Setup:")}
-  Create .env in your project root with:
+  Create environment-specific .env files in your project root:
+    .env              (for development)
+    .env.staging      (for staging)
+    .env.production   (for production)
+  
+  Each file should contain:
     FRAMER_PROJECT_URL=https://framer.com/projects/...
 
   Optionally add framer-code-sync.config.json for transforms.
