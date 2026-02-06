@@ -26,7 +26,7 @@ interface Framer {
 async function runWithConcurrency<T, R>(
   items: T[],
   fn: (item: T) => Promise<R>,
-  limit: number
+  limit: number,
 ): Promise<R[]> {
   const results: R[] = [];
   let index = 0;
@@ -51,7 +51,7 @@ export async function pushFiles(
   importRules: ImportReplacementRule[],
   onProgress: (message: string) => void,
   envTarget: string = "staging",
-  framer?: Framer
+  framer?: Framer,
 ): Promise<PushResult> {
   const result: PushResult = { created: [], updated: [], errors: [] };
 
@@ -89,7 +89,10 @@ export async function pushFiles(
         newFiles,
         async (file) => {
           try {
-            const created = await framer.createCodeFile(file.framerPath, DUMMY_CONTENT);
+            const created = await framer.createCodeFile(
+              file.framerPath,
+              DUMMY_CONTENT,
+            );
             onProgress(`  Created: ${file.framerPath}`);
             return { file, created, error: null };
           } catch (err) {
@@ -98,19 +101,26 @@ export async function pushFiles(
             return { file, created: null, error: msg };
           }
         },
-        CONCURRENCY
+        CONCURRENCY,
       );
 
       // Phase 2: Update new files with real content (parallel)
       const successfulCreates = createdFiles.filter((r) => r.created !== null);
       if (successfulCreates.length > 0) {
-        onProgress(`Updating ${successfulCreates.length} new files with content...`);
+        onProgress(
+          `Updating ${successfulCreates.length} new files with content...`,
+        );
         await runWithConcurrency(
           successfulCreates,
           async ({ file, created }) => {
             try {
               const rawContent = fs.readFileSync(file.absolutePath, "utf-8");
-              const transformed = transformContent(rawContent, importRules, file.framerPath, envTarget);
+              const transformed = transformContent(
+                rawContent,
+                importRules,
+                file.framerPath,
+                envTarget,
+              );
               await created!.setFileContent(transformed);
               result.created.push(file.framerPath);
               onProgress(`  Updated: ${file.framerPath}`);
@@ -126,7 +136,7 @@ export async function pushFiles(
               }
             }
           },
-          CONCURRENCY
+          CONCURRENCY,
         );
       }
 
@@ -141,26 +151,31 @@ export async function pushFiles(
       onProgress(`Updating ${updateFiles.length} existing files...`);
       await runWithConcurrency(
         updateFiles,
-          async ({ file, existing }) => {
-            try {
-              const rawContent = fs.readFileSync(file.absolutePath, "utf-8");
-              const transformed = transformContent(rawContent, importRules, file.framerPath, envTarget);
-              await existing.setFileContent(transformed);
+        async ({ file, existing }) => {
+          try {
+            const rawContent = fs.readFileSync(file.absolutePath, "utf-8");
+            const transformed = transformContent(
+              rawContent,
+              importRules,
+              file.framerPath,
+              envTarget,
+            );
+            await existing.setFileContent(transformed);
+            result.updated.push(file.framerPath);
+            onProgress(`  Updated: ${file.framerPath}`);
+          } catch (err) {
+            const msg = err instanceof Error ? err.message : String(err);
+            // Timeout errors mean the file was updated successfully, just treat as success
+            if (msg.includes("waitForComponentLoader timeout")) {
               result.updated.push(file.framerPath);
               onProgress(`  Updated: ${file.framerPath}`);
-            } catch (err) {
-              const msg = err instanceof Error ? err.message : String(err);
-              // Timeout errors mean the file was updated successfully, just treat as success
-              if (msg.includes("waitForComponentLoader timeout")) {
-                result.updated.push(file.framerPath);
-                onProgress(`  Updated: ${file.framerPath}`);
-              } else {
-                result.errors.push({ path: file.framerPath, error: msg });
-                onProgress(`  Error: ${file.framerPath}: ${msg}`);
-              }
+            } else {
+              result.errors.push({ path: file.framerPath, error: msg });
+              onProgress(`  Error: ${file.framerPath}: ${msg}`);
             }
-          },
-        CONCURRENCY
+          }
+        },
+        CONCURRENCY,
       );
     }
   } finally {

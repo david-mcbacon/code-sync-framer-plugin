@@ -23,13 +23,12 @@ function getCacheFilePath(envTarget: string, baseName: string): string {
   if (!fs.existsSync(CACHE_DIR)) {
     fs.mkdirSync(CACHE_DIR, { recursive: true });
   }
-  
+
   // For default environment (development), use base name without suffix
   // For other environments, add suffix
-  const fileName = envTarget === "development" 
-    ? baseName 
-    : `${baseName}.${envTarget}`;
-  
+  const fileName =
+    envTarget === "development" ? baseName : `${baseName}.${envTarget}`;
+
   return path.join(CACHE_DIR, fileName);
 }
 
@@ -49,7 +48,7 @@ export async function runPush(args: string[]) {
   // Parse --env or --environment argument
   let envTarget = "development"; // default
   const envIndex = args.findIndex(
-    (arg) => arg === "--env" || arg === "--environment"
+    (arg) => arg === "--env" || arg === "--environment",
   );
   if (envIndex !== -1 && envIndex + 1 < args.length) {
     const envValue = args[envIndex + 1];
@@ -59,24 +58,27 @@ export async function runPush(args: string[]) {
     } else {
       console.error(
         pc.red(
-          `Error: Invalid environment "${envValue}". Must be one of: ${validEnvs.join(", ")}`
-        )
+          `Error: Invalid environment "${envValue}". Must be one of: ${validEnvs.join(", ")}`,
+        ),
       );
       process.exit(1);
     }
   }
 
   // Load environment-specific .env file
-  const envFileName = envTarget === "development" ? ".env" : `.env.${envTarget}`;
+  const envFileName =
+    envTarget === "development" ? ".env" : `.env.${envTarget}`;
   const envFilePath = path.join(process.cwd(), envFileName);
-  
+
   if (!fs.existsSync(envFilePath)) {
     console.error(pc.red(`Error: ${envFileName} not found`));
     console.error(pc.gray(`Create ${envFileName} in current directory with:`));
-    console.error(pc.gray("  FRAMER_PROJECT_URL=https://framer.com/projects/..."));
+    console.error(
+      pc.gray("  FRAMER_PROJECT_URL=https://framer.com/projects/..."),
+    );
     process.exit(1);
   }
-  
+
   // Load the environment-specific .env file
   dotenv.config({ path: envFilePath });
 
@@ -86,9 +88,13 @@ export async function runPush(args: string[]) {
 
   const projectUrl = process.env["FRAMER_PROJECT_URL"];
   if (!projectUrl) {
-    console.error(pc.red(`Error: FRAMER_PROJECT_URL not found in ${envFileName}`));
+    console.error(
+      pc.red(`Error: FRAMER_PROJECT_URL not found in ${envFileName}`),
+    );
     console.error(pc.gray(`Ensure ${envFileName} contains:`));
-    console.error(pc.gray("  FRAMER_PROJECT_URL=https://framer.com/projects/..."));
+    console.error(
+      pc.gray("  FRAMER_PROJECT_URL=https://framer.com/projects/..."),
+    );
     process.exit(1);
   }
 
@@ -96,15 +102,15 @@ export async function runPush(args: string[]) {
   const { config, found: configFound } = loadConfig();
   if (!configFound) {
     console.log(
-      pc.yellow("No framer-code-sync.config.json found, using defaults")
+      pc.yellow("No framer-code-sync.config.json found, using defaults"),
     );
   } else {
     console.log(
       pc.cyan(
         `Loaded config with ${pc.bold(
-          config.importReplacements.length
-        )} import rules`
-      )
+          config.importReplacements.length,
+        )} import rules`,
+      ),
     );
   }
 
@@ -121,7 +127,7 @@ export async function runPush(args: string[]) {
     const lastPushTime = readLastPushTime(LAST_PUSH_FILE);
     if (lastPushTime) {
       console.log(
-        pc.gray(`Last push: ${new Date(lastPushTime).toLocaleString()}`)
+        pc.gray(`Last push: ${new Date(lastPushTime).toLocaleString()}`),
       );
     } else {
       console.log(pc.yellow("No previous push recorded, will push all files"));
@@ -152,7 +158,9 @@ export async function runPush(args: string[]) {
       framer = await connect(projectUrl);
       try {
         const existingFiles = await framer.getCodeFiles();
-        existingFilePaths = new Set(existingFiles.map((f: { path: string }) => f.path));
+        existingFilePaths = new Set(
+          existingFiles.map((f: { path: string }) => f.path),
+        );
         saveFramerFilesCache(FRAMER_FILES_CACHE, Array.from(existingFilePaths));
         console.log(pc.green(`Cached ${existingFilePaths.size} files`));
       } catch (err) {
@@ -167,7 +175,9 @@ export async function runPush(args: string[]) {
     framer = await connect(projectUrl);
     try {
       const existingFiles = await framer.getCodeFiles();
-      existingFilePaths = new Set(existingFiles.map((f: { path: string }) => f.path));
+      existingFilePaths = new Set(
+        existingFiles.map((f: { path: string }) => f.path),
+      );
       saveFramerFilesCache(FRAMER_FILES_CACHE, Array.from(existingFilePaths));
       console.log(pc.green(`Cached ${existingFilePaths.size} files`));
     } catch (err) {
@@ -178,10 +188,10 @@ export async function runPush(args: string[]) {
 
   // Categorize files
   const filesToCreate = filesToPush.filter(
-    (f) => !existingFilePaths.has(f.framerPath)
+    (f) => !existingFilePaths.has(f.framerPath),
   );
   const filesToUpdate = filesToPush.filter((f) =>
-    existingFilePaths.has(f.framerPath)
+    existingFilePaths.has(f.framerPath),
   );
 
   // Show files to push
@@ -195,8 +205,8 @@ export async function runPush(args: string[]) {
     const date = new Date(file.mtime).toLocaleString();
     console.log(
       `  ${pc.bold(pc.green(file.framerPath))} ${pc.gray(
-        `(modified: ${date})`
-      )} ${pc.gray("(new)")}`
+        `(modified: ${date})`,
+      )} ${pc.gray("(new)")}`,
     );
   }
 
@@ -205,8 +215,8 @@ export async function runPush(args: string[]) {
     const date = new Date(file.mtime).toLocaleString();
     console.log(
       `  ${pc.bold(pc.yellow(file.framerPath))} ${pc.gray(
-        `(modified: ${date})`
-      )}`
+        `(modified: ${date})`,
+      )}`,
     );
   }
   console.log(accentColor("=".repeat(50)));
@@ -214,7 +224,7 @@ export async function runPush(args: string[]) {
   // Confirm
   if (!skipConfirm) {
     const confirmed = await askConfirmation(
-      pc.yellow("\nProceed with push? (Y/Enter to confirm): ")
+      pc.yellow("\nProceed with push? (Y/Enter to confirm): "),
     );
     if (!confirmed) {
       console.log(pc.red("Aborted."));
@@ -246,9 +256,9 @@ export async function runPush(args: string[]) {
     config.importReplacements,
     (msg) => console.log(msg),
     envTarget,
-    framer
+    framer,
   );
-  
+
   // Disconnect after push
   try {
     await framer.disconnect();
@@ -270,23 +280,23 @@ export async function runPush(args: string[]) {
   console.log(pc.bold(pc.green("Push complete!")));
   console.log(
     `  ${pc.green("Created:")} ${pc.bold(
-      pc.green(result.created.length.toString())
-    )}`
+      pc.green(result.created.length.toString()),
+    )}`,
   );
   console.log(
     `  ${pc.blue("Updated:")} ${pc.bold(
-      pc.blue(result.updated.length.toString())
-    )}`
+      pc.blue(result.updated.length.toString()),
+    )}`,
   );
   if (result.errors.length > 0) {
     console.log(
       `  ${pc.red("Errors:")} ${pc.bold(
-        pc.red(result.errors.length.toString())
-      )}`
+        pc.red(result.errors.length.toString()),
+      )}`,
     );
     for (const err of result.errors) {
       console.log(
-        `    ${pc.red("-")} ${pc.red(err.path)}: ${pc.red(err.error)}`
+        `    ${pc.red("-")} ${pc.red(err.path)}: ${pc.red(err.error)}`,
       );
     }
   }
