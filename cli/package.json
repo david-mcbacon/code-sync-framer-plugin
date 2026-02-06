@@ -16,7 +16,7 @@
   },
   "dependencies": {
     "dotenv": "^16.4.0",
-    "framer-api": "0.0.1-beta.4",
+    "framer-api": "0.1.1",
     "picocolors": "^1.1.1"
   },
   "devDependencies": {

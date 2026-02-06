@@ -12,8 +12,8 @@ importers:
         specifier: ^16.4.0
         version: 16.6.1
       framer-api:
-        specifier: 0.0.1-beta.4
-        version: 0.0.1-beta.4
+        specifier: 0.1.1
+        version: 0.1.1
       picocolors:
         specifier: ^1.1.1
         version: 1.1.1
@@ -201,8 +201,8 @@ packages:
     engines: {node: '>=18'}
     hasBin: true
 
-  framer-api@0.0.1-beta.4:
-    resolution: {integrity: sha512-3CbzdemiLkc4SqzhqQ4HdhbWo9+Onu3NUZn1MGaddr00OuWfETHFfasW+e8StrtUecFtLqRFZ/xZh7khf7rciA==}
+  framer-api@0.1.1:
+    resolution: {integrity: sha512-Y2/MQWBbhViuUJeS2zwOoKUDfTNkUL/zPO31kIPjVafU2aTbICRegB+6fgbLSaBF4tTpWSTV5XiYMUa7rjf6vw==}
 
   fsevents@2.3.3:
     resolution: {integrity: sha512-5xoDfX+fL7faATnagmWPpbFtwh/R77WmMMqqHGS65C3vvB0YHrgF+B1YmZ3441tMj5n63k0212XNoJwzlhffQw==}
@@ -212,14 +212,14 @@ packages:
   get-tsconfig@4.13.0:
     resolution: {integrity: sha512-1VKTZJCwBrvbd+Wn3AOgQP/2Av+TfTCOlE4AcRJE72W1ksZXbAx8PPBR9RzgTeSPzlPMHrbANMH3LbltH73wxQ==}
 
-  pathe@2.0.3:
-    resolution: {integrity: sha512-WUjGcAqP1gQacoQe+OBJsFA7Ld4DyXuUIjZ5cc75cLHvJ7dtNsTugphxIADwspS+AraAUePCKrSVtPLFj/F88w==}
-
   picocolors@1.1.1:
     resolution: {integrity: sha512-xceH2snhtb5M9liqDsmEw56le376mTZkEX/jEb/RxNFyegNul7eNslCXP9FDj/Lcu0X8KEyMceP2ntpaHrDEVA==}
 
   resolve-pkg-maps@1.0.0:
     resolution: {integrity: sha512-seS2Tj26TBVOC2NIc2rOe2y2ZO7efxITtLZcGSOnHHNOQ7CkiUBfw0Iw2ck6xkIhPwLhKNLS8BO+hEpngQlqzw==}
+
+  std-env@3.10.0:
+    resolution: {integrity: sha512-5GS12FdOZNliM5mAOxFRg7Ir0pWz8MdpYm6AY6VPkGpbA7ZzmbzNcBJQ0GPvvyWgcY7QAhCgf9Uy89I03faLkg==}
 
   tsx@4.21.0:
     resolution: {integrity: sha512-5C1sg4USs1lfG0GFb2RLXsdpXqBSEhAaA/0kPL01wxzpMqLILNxIxIOKiILz+cdg/pLnOUxFYOR5yhHU666wbw==}
@@ -233,21 +233,6 @@ packages:
 
   undici-types@6.21.0:
     resolution: {integrity: sha512-iwDZqg0QAGrg9Rav5H4n0M64c3mkR59cJ6wQp+7C4nI0gsmExaedaYLNO44eT4AtBBwjbTiGPMlt2Md0T9H9JQ==}
-
-  unenv@2.0.0-rc.24:
-    resolution: {integrity: sha512-i7qRCmY42zmCwnYlh9H2SvLEypEFGye5iRmEMKjcGi7zk9UquigRjFtTLz0TYqr0ZGLZhaMHl/foy1bZR+Cwlw==}
-
-  ws@8.19.0:
-    resolution: {integrity: sha512-blAT2mjOEIi0ZzruJfIhb3nps74PRWTCz1IjglWEEpQl5XS/UNama6u2/rjFkDDouqr4L67ry+1aGIALViWjDg==}
-    engines: {node: '>=10.0.0'}
-    peerDependencies:
-      bufferutil: ^4.0.1
-      utf-8-validate: '>=5.0.2'
-    peerDependenciesMeta:
-      bufferutil:
-        optional: true
-      utf-8-validate:
-        optional: true
 
 snapshots:
 
@@ -366,14 +351,10 @@ snapshots:
       '@esbuild/win32-ia32': 0.27.2
       '@esbuild/win32-x64': 0.27.2
 
-  framer-api@0.0.1-beta.4:
+  framer-api@0.1.1:
     dependencies:
       devalue: 5.6.2
-      unenv: 2.0.0-rc.24
-      ws: 8.19.0
-    transitivePeerDependencies:
-      - bufferutil
-      - utf-8-validate
+      std-env: 3.10.0
 
   fsevents@2.3.3:
     optional: true
@@ -382,11 +363,11 @@ snapshots:
     dependencies:
       resolve-pkg-maps: 1.0.0
 
-  pathe@2.0.3: {}
-
   picocolors@1.1.1: {}
 
   resolve-pkg-maps@1.0.0: {}
+
+  std-env@3.10.0: {}
 
   tsx@4.21.0:
     dependencies:
@@ -398,9 +379,3 @@ snapshots:
   typescript@5.9.3: {}
 
   undici-types@6.21.0: {}
-
-  unenv@2.0.0-rc.24:
-    dependencies:
-      pathe: 2.0.3
-
-  ws@8.19.0: {}
