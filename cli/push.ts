@@ -251,8 +251,8 @@ export async function runPush(args: string[]) {
   console.log(pc.cyan("\nPushing files...\n"));
   console.log(pc.gray(`Environment: ${pc.bold(envTarget)}`));
   const result = await pushFiles(
-    projectUrl,
-    filesToPush,
+    filesToCreate,
+    filesToUpdate,
     config.importReplacements,
     (msg) => console.log(msg),
     envTarget,
