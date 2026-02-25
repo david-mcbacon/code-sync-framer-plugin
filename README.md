@@ -84,12 +84,12 @@ The plugin merges UI settings with your config, giving **priority to the config 
   "version": 1,
   "importReplacements": [
     { "find": "@stripe/stripe-js", "replace": "./Bundles/Stripe_bundle.tsx" },
-    { "find": "./mock/helpers", "replace": "https://example.com/helpers.js" }
+    { "find": "./mock/helpers", "replace": "https://example.com/helpers.js" },
   ],
   "ignoredFiles": ["./internal/mock.tsx"],
   "stringReplacements": [
-    { "find": "(api.tasks.get)", "replace": "(\"tasks:get\")" }
-  ]
+    { "find": "(api.tasks.get)", "replace": "(\"tasks:get\")" },
+  ],
 }
 ```
 
@@ -190,6 +190,16 @@ framer-code-sync-cli push --refresh          # force refresh of Framer file cach
 framer-code-sync-cli push --env development  # use development environment (default)
 framer-code-sync-cli push --env staging      # use staging environment
 framer-code-sync-cli push --env production   # use production environment
+
+framer-code-sync-cli list                    # list all files in the Framer project
+framer-code-sync-cli list --env staging      # list files for a specific environment
+
+framer-code-sync-cli get <file-path>         # output the source code of a Framer file to stdout
+framer-code-sync-cli get <file-path> --env staging
+
+framer-code-sync-cli insert-url <file-path> # output insertURL(s) for all component exports in a file
+framer-code-sync-cli insert-url <file-path> --env staging
+
 framer-code-sync-cli --help                  # show help
 ```
 

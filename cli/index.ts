@@ -16,6 +16,9 @@ ${pc.bold("Usage:")}
 
 ${pc.bold("Commands:")}
   push        Push changed .tsx files to Framer
+  list        List all files in Framer project
+  get         Output content of a file in Framer
+  insert-url  Output insertURL(s) for components in a Framer file
 
 ${pc.bold("Push Options:")}
   --force     Push all files, ignore last push time
@@ -44,8 +47,16 @@ async function main() {
 
   if (command === "push" || command === "-p" || command === "--push") {
     const { runPush } = await import("./push.js");
-    const pushArgs = command === "push" ? args.slice(1) : args.slice(1);
-    await runPush(pushArgs);
+    await runPush(args.slice(1));
+  } else if (command === "list" || command === "-l" || command === "--list") {
+    const { runList } = await import("./list.js");
+    await runList(args.slice(1));
+  } else if (command === "get") {
+    const { runGet } = await import("./get.js");
+    await runGet(args.slice(1));
+  } else if (command === "insert-url") {
+    const { runInsertUrl } = await import("./insert-url.js");
+    await runInsertUrl(args.slice(1));
   } else {
     console.error(pc.red(`Unknown command: ${command}`));
     printHelp();
