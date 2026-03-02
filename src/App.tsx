@@ -1,6 +1,7 @@
 import { framer } from "framer-plugin";
 import "./App.css";
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
+import { withPermission } from "./lib/permission-utils";
 import FolderUploadPage from "./pages/upload/page";
 import DocsPage from "./pages/docs/page";
 import ExportPage from "./pages/export/page";
@@ -14,6 +15,40 @@ framer.showUI({
 export function App() {
   const [activeTab, setActiveTab] = useState("upload");
   const [isMinimized, setIsMinimized] = useState(false);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const load = async () => {
+      try {
+        const value = await framer.getPluginData("isMinimized");
+        if (!isMounted) return;
+        const normalized = value?.trim();
+        if (normalized === "true" || normalized === "false") {
+          setIsMinimized(normalized === "true");
+        }
+      } catch (error) {
+        console.error("Failed to load minimized state", error);
+      }
+    };
+
+    void load();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  const setIsMinimizedAndPersist = useCallback((value: boolean) => {
+    setIsMinimized(value);
+    void withPermission({
+      permission: "setPluginData",
+      action: async () => {
+        return await framer.setPluginData("isMinimized", value.toString());
+      },
+      errorMessage: "Failed to persist minimized state",
+    });
+  }, []);
+
   return (
     <main
       style={{
@@ -61,7 +96,7 @@ export function App() {
         {activeTab === "upload" && (
           <FolderUploadPage
             isMinimized={isMinimized}
-            setIsMinimized={setIsMinimized}
+            setIsMinimized={setIsMinimizedAndPersist}
           />
         )}
         {activeTab === "export" && <ExportPage />}

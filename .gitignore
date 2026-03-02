@@ -35,3 +35,10 @@ plugin.zip
 
 .cursor
 /comps
+
+.env
+last-push.txt
+.framer-push-time
+node_modules/
+/dist
+.framer-files.json
