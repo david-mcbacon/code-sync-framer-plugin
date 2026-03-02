@@ -30,6 +30,15 @@ This Framer plugin is built as a modern React application with the following tec
 - **CSS Styling** - Combination of inline styles and external `App.css` file. Planning to migrate to Tailwind CSS in the future.
 - **ESLint** - Code linting and quality assurance
 
+## 🤖 AI Agentic Coding Support
+
+This repository includes `.cursor` and `.claude` folders with rules and context specifically designed to enhance AI agentic coding experiences. These folders contain:
+
+- **`.cursor/rules/`** - Cursor IDE rules for improved AI-assisted development
+- **`.claude/`** - Claude Code AI context and instructions for better code understanding
+
+These files provide AI agents with project-specific knowledge, coding standards, and development workflows to ensure consistent and high-quality contributions.
+
 ## ⚡ Quick Start
 
 1. **Select your upload mode** — folder or individual files
@@ -75,12 +84,12 @@ The plugin merges UI settings with your config, giving **priority to the config 
   "version": 1,
   "importReplacements": [
     { "find": "@stripe/stripe-js", "replace": "./Bundles/Stripe_bundle.tsx" },
-    { "find": "./mock/helpers", "replace": "https://example.com/helpers.js" }
+    { "find": "./mock/helpers", "replace": "https://example.com/helpers.js" },
   ],
   "ignoredFiles": ["./internal/mock.tsx"],
   "stringReplacements": [
-    { "find": "(api.tasks.get)", "replace": "(\"tasks:get\")" }
-  ]
+    { "find": "(api.tasks.get)", "replace": "(\"tasks:get\")" },
+  ],
 }
 ```
 
@@ -125,6 +134,103 @@ Your selected environment is stored per project via `framer.setPluginData`, so c
 - `Upload fails` — Check the browser console for detailed error messages
 - `Config not applied` — Ensure `framer-code-sync.config.json` is at the root of your uploaded folder
 - `Import errors` — Verify that replacement URLs and paths are correct
+
+## 💻 CLI
+
+Push `.tsx` files to Framer from the command line — no plugin UI needed.
+
+### Installation
+
+**From source (current):**
+
+```bash
+git clone https://github.com/david-mcbacon/code-sync-framer-plugin.git
+cd framer-code-sync/cli
+pnpm install && pnpm build
+
+# Link globally (first time may need: pnpm setup && restart terminal)
+pnpm link --global
+```
+
+**From npm (once published):**
+
+```bash
+npm i -g framer-code-sync-cli
+```
+
+### Setup
+
+Create environment-specific `.env` files in your project root:
+
+```env
+# .env (for development - default)
+FRAMER_PROJECT_URL=https://framer.com/projects/YOUR-PROJECT-ID
+FRAMER_API_KEY=YOUR-API-KEY=YOUR-API-SECRET
+
+# .env.staging (for staging)
+FRAMER_PROJECT_URL=https://framer.com/projects/YOUR-STAGING-PROJECT-ID
+FRAMER_API_KEY=YOUR-API-KEY=YOUR-API-SECRET
+
+# .env.production (for production)
+FRAMER_PROJECT_URL=https://framer.com/projects/YOUR-PROD-PROJECT-ID
+FRAMER_API_KEY=YOUR-API-KEY=YOUR-API-SECRET
+```
+
+The CLI will automatically load the correct `.env` file based on the `--env` flag. If the required `.env` file doesn't exist, it will throw an error.
+
+Optionally add `framer-code-sync.config.json` for transforms (same format as plugin config).
+
+### Usage
+
+```bash
+framer-code-sync-cli push                    # push changed .tsx files (uses development env by default)
+framer-code-sync-cli push --force            # push all files
+framer-code-sync-cli push --yes               # skip confirmation
+framer-code-sync-cli push --refresh          # force refresh of Framer file cache
+framer-code-sync-cli push --env development  # use development environment (default)
+framer-code-sync-cli push --env staging      # use staging environment
+framer-code-sync-cli push --env production   # use production environment
+
+framer-code-sync-cli list                    # list all files in the Framer project
+framer-code-sync-cli list --env staging      # list files for a specific environment
+
+framer-code-sync-cli get <file-path>         # output the source code of a Framer file to stdout
+framer-code-sync-cli get <file-path> --env staging
+
+framer-code-sync-cli insert-url <file-path> # output insertURL(s) for all component exports in a file
+framer-code-sync-cli insert-url <file-path> --env staging
+
+framer-code-sync-cli --help                  # show help
+```
+
+### How it works
+
+1. Loads environment-specific `.env` file (`.env`, `.env.staging`, or `.env.production`) based on `--env` flag
+2. Scans all `.tsx` files in current directory (recursive)
+3. Filters to only changed files since last push (stored in `.framer-code-sync-cli/.framer-push-time` or `.framer-code-sync-cli/.framer-push-time.{env}`)
+4. Checks which files exist in Framer:
+   - Uses cached file structure from `.framer-code-sync-cli/.framer-files.json` (default, faster)
+   - Environment-specific cache files: `.framer-code-sync-cli/.framer-files.json.{env}` for staging/production
+   - Fetches from Framer API if cache missing or `--refresh` flag used
+5. Applies transforms from config (if present)
+6. Replaces `ENV.tsx` variables based on selected environment (defaults to `development`)
+   - Replaces `ENV.*.development` → `ENV.*.{selected}` (e.g., `ENV.API_URL.development` → `ENV.API_URL.staging`)
+7. Pushes to Framer via `framer-api`
+8. Updates cache with newly created files
+
+### File Caching
+
+The CLI caches Framer's file structure and push timestamps in `.framer-code-sync-cli/` folder to avoid API calls on every push. Each environment has separate cache files:
+
+- **Development** (default): `.framer-code-sync-cli/.framer-files.json` and `.framer-code-sync-cli/.framer-push-time`
+- **Staging**: `.framer-code-sync-cli/.framer-files.json.staging` and `.framer-code-sync-cli/.framer-push-time.staging`
+- **Production**: `.framer-code-sync-cli/.framer-files.json.production` and `.framer-code-sync-cli/.framer-push-time.production`
+
+- **First run**: Fetches from Framer and creates cache
+- **Subsequent runs**: Uses cache by default (much faster)
+- **Refresh cache**: Use `--refresh` or `--refetch` to force refetch from Framer
+- **Auto-update**: Cache is automatically updated with newly created files after each push
+- **Environment isolation**: Each environment maintains its own cache, so push times and file lists are tracked separately
 
 ## 🤝 Contributing
 

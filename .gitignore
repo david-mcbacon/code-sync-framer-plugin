@@ -33,5 +33,7 @@ yarn-error.log\*
 
 plugin.zip
 
-.cursor
 /comps
+.env
+.framer-push-time
+.framer-files.json

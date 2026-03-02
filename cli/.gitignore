@@ -1,0 +1,5 @@
+.env
+last-push.txt
+.framer-push-time
+node_modules/
+/dist

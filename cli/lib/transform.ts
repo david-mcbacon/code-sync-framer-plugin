@@ -1,0 +1,207 @@
+import fs from "node:fs";
+import path from "node:path";
+
+export interface ImportReplacementRule {
+  find: string;
+  replace: string;
+}
+
+export interface EnvReplacementRule {
+  from: string;
+  to: string;
+}
+
+export interface CodeSyncConfig {
+  version: number;
+  importReplacements: ImportReplacementRule[];
+  ignoredFiles: string[];
+}
+
+const CONFIG_FILENAME = "framer-code-sync.config.json";
+
+export interface LoadConfigResult {
+  config: CodeSyncConfig;
+  found: boolean;
+}
+
+export function getConfigPath(): string {
+  return path.join(process.cwd(), CONFIG_FILENAME);
+}
+
+export function loadConfig(): LoadConfigResult {
+  const configPath = getConfigPath();
+  try {
+    const content = fs.readFileSync(configPath, "utf-8");
+    return { config: JSON.parse(content), found: true };
+  } catch {
+    return {
+      config: { version: 1, importReplacements: [], ignoredFiles: [] },
+      found: false,
+    };
+  }
+}
+
+export function transformContent(
+  content: string,
+  rules: ImportReplacementRule[],
+  framerPath: string,
+  envTarget: string = "staging"
+): string {
+  let output = content;
+  output = applyImportReplacements(output, rules, framerPath);
+  
+  // Apply ENV replacement
+  const envReplacementRules: EnvReplacementRule[] = [
+    { from: "development", to: envTarget },
+  ];
+  output = applyEnvReplacement(output, envReplacementRules);
+  
+  output = ensureTsxExtensions(output);
+  return output;
+}
+
+function applyImportReplacements(
+  content: string,
+  rules: ImportReplacementRule[],
+  framerPath: string
+): string {
+  if (!rules.length) return content;
+
+  const fromDir = getDirname(normalizePath(framerPath));
+  let output = content;
+
+  for (const rule of rules) {
+    const replaceValue = rule.replace;
+    let finalReplace: string;
+
+    // If replace value is a URL, use as-is
+    if (
+      replaceValue.startsWith("http://") ||
+      replaceValue.startsWith("https://")
+    ) {
+      finalReplace = replaceValue;
+    } else {
+      // For local paths, calculate relative path
+      const targetRootPath = stripLeadingDotSlash(normalizePath(replaceValue));
+      finalReplace = getRelativePath(fromDir, targetRootPath);
+    }
+
+    output = replaceImportSpecifier(output, rule.find, finalReplace);
+  }
+  return output;
+}
+
+function normalizePath(p: string): string {
+  return p.replace(/\\/g, "/").replace(/\/+/, "/");
+}
+
+function stripLeadingDotSlash(p: string): string {
+  return p.startsWith("./") ? p.slice(2) : p.startsWith(".\\") ? p.slice(2) : p;
+}
+
+function getDirname(p: string): string {
+  const idx = p.lastIndexOf("/");
+  return idx === -1 ? "" : p.slice(0, idx);
+}
+
+function getRelativePath(fromDir: string, toPath: string): string {
+  const fromParts = fromDir ? fromDir.split("/").filter(Boolean) : [];
+  const toParts = toPath.split("/").filter(Boolean);
+
+  let i = 0;
+  while (
+    i < fromParts.length &&
+    i < toParts.length &&
+    fromParts[i] === toParts[i]
+  ) {
+    i++;
+  }
+
+  const upSegments = fromParts.length - i;
+  const downParts = toParts.slice(i);
+
+  const up = upSegments > 0 ? Array(upSegments).fill("..").join("/") : "";
+  const down = downParts.join("/");
+
+  let rel = up && down ? `${up}/${down}` : up || down;
+  if (!rel.startsWith("../") && !rel.startsWith("./")) {
+    rel = `./${rel}`;
+  }
+  return rel || "./";
+}
+
+function escapeRegExp(s: string): string {
+  return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+function replaceImportSpecifier(
+  content: string,
+  searchSpecifier: string,
+  replacement: string
+): string {
+  const esc = escapeRegExp(searchSpecifier);
+
+  // Pattern 1: import {...} from 'specifier'
+  const fromPattern = new RegExp(`from\\s+(["'])${esc}\\1`, "g");
+  content = content.replace(
+    fromPattern,
+    (_m, quote: string) => `from ${quote}${replacement}${quote}`
+  );
+
+  // Pattern 2: side-effect import: import 'specifier'
+  const sePattern = new RegExp(`(^|[^\\w])import\\s+(["'])${esc}\\2`, "g");
+  content = content.replace(
+    sePattern,
+    (_m, prefix: string, quote: string) =>
+      `${prefix}import ${quote}${replacement}${quote}`
+  );
+
+  return content;
+}
+
+function applyEnvReplacement(
+  content: string,
+  replacementRules: EnvReplacementRule[]
+): string {
+  if (!replacementRules.length) return content;
+
+  for (const rule of replacementRules) {
+    const { from, to } = rule;
+
+    // Escape special regex characters in environment names
+    const escapedFrom = from.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+    // Pattern 1: ENV.something.from -> ENV.something.to
+    content = content.replace(
+      new RegExp(
+        `\\bENV\\.([a-zA-Z_$][a-zA-Z0-9_$]*)\\.${escapedFrom}\\b`,
+        "g"
+      ),
+      `ENV.$1.${to}`
+    );
+
+    // Pattern 2: ENV["something"]["from"] or ENV['something']['from']
+    content = content.replace(
+      new RegExp(
+        `\\bENV\\[(['"])([a-zA-Z_$][a-zA-Z0-9_$]*)\\1\\]\\[(['"])${escapedFrom}\\3\\]`,
+        "g"
+      ),
+      `ENV[$1$2$1][$3${to}$3]`
+    );
+  }
+
+  return content;
+}
+
+function ensureTsxExtensions(content: string): string {
+  // Match import statements with relative paths (starting with . or ..)
+  const importPattern = /(from\s+|import\s+)(["'])(\.\.[^"']*|\.\/[^"']*)\2/g;
+
+  return content.replace(importPattern, (match, prefix, quote, importPath) => {
+    // Skip if already has extension
+    if (/\.(tsx|ts|jsx|js|css)$/.test(importPath)) {
+      return match;
+    }
+    return `${prefix}${quote}${importPath}.tsx${quote}`;
+  });
+}

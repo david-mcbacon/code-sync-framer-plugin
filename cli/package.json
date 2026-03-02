@@ -1,0 +1,27 @@
+{
+  "name": "framer-code-sync-cli",
+  "version": "0.0.1",
+  "type": "module",
+  "bin": {
+    "framer-code-sync-cli": "./dist/index.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "push": "tsx index.ts push",
+    "push:force": "tsx index.ts push --force",
+    "push:yes": "tsx index.ts push --yes"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.0",
+    "framer-api": "0.1.1",
+    "picocolors": "^1.1.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.5.0"
+  }
+}
